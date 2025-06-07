@@ -12,6 +12,8 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    // Hint to start the window maximized on launch
+    glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
     // Create a windowed mode window and its OpenGL context
     GLFWwindow* window = glfwCreateWindow(800, 800, "V-Museum", nullptr, nullptr);
