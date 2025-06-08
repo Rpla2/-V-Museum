@@ -1,4 +1,4 @@
-#include <GLFW/glfw3.h>
+﻿#include <GLFW/glfw3.h>
 #include <iostream>
 
 #include "imgui.h"
@@ -8,97 +8,93 @@
 #include "ImGuiManager.h"
 #include "Menu.h"
 
-// Sets the background color based on the application state
+// Establece el color de fondo según el estado de la aplicación
 void SetClearColor(AppState state);
-// Renders the current state (menu, instructions, playing)
-void RenderState(AppState& currentState, GLFWwindow* window);
+// Renderiza el estado actual (menú, instrucciones, cargando, jugando)
+void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading);
 
 int main() {
-    // Initialize GLFW library
     if (!glfwInit()) {
-        std::cerr << "Failed to initialize GLFW\n"; // Error initializing GLFW
+        std::cerr << "Failed to initialize GLFW\n";
         return -1;
     }
 
-    // Set OpenGL version to 3.3 Core Profile
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    // Start the window maximized on launch
     glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
-    // Create a windowed mode window and its OpenGL context
-    GLFWwindow* window = glfwCreateWindow(800, 800, "V-Museum", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(1280, 720, "V-Museum", nullptr, nullptr);
     if (!window) {
-        std::cerr << "Failed to create GLFW window\n";  // Error creating window
+        std::cerr << "Failed to create GLFW window\n";
         glfwTerminate();
         return -1;
     }
-    // Make the window's context current
     glfwMakeContextCurrent(window);
 
-    // ImGui initialization
     InitImGui(window);
 
-    // Set initial application state to MENU
     AppState currentState = AppState::MENU;
+    AppState nextStateAfterLoading = AppState::MENU;
 
-    // Main loop
     while (!glfwWindowShouldClose(window)) {
-        glfwPollEvents(); // Process events
+        glfwPollEvents();
 
-        // Start ImGui frame
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        // Menu/Instructions/Game state logic and rendering
-        RenderState(currentState, window);
+        RenderState(currentState, window, nextStateAfterLoading);
 
-        // Set background color based on state
         SetClearColor(currentState);
+        glClear(GL_COLOR_BUFFER_BIT);
 
-        glClear(GL_COLOR_BUFFER_BIT); // Clear the color buffer
-
-        ImGui::Render(); // Render ImGui
+        ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);
     }
 
-    // Cleanup ImGui and GLFW resources
     CleanupImGui();
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }
 
-// Sets the background color based on the application state
 void SetClearColor(AppState state) {
-    if (state == AppState::INSTRUCTIONS) {
-        glClearColor(0.274f, 0.318f, 0.384f, 0.95f); // Instructions background
+    // Usamos el mismo color de fondo que el de la ventana de ImGui para una apariencia integrada
+    ImVec4 clear_color = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
+    if (state == AppState::PLAYING) {
+        // Un color diferente para el fondo del "juego"
+        glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
     }
     else {
-        glClearColor(0.1f, 0.2f, 0.3f, 1.0f);  // Default background
+        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
     }
 }
 
-// Renders the current application state
-void RenderState(AppState& currentState, GLFWwindow* window) {
+void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading) {
     switch (currentState) {
     case AppState::MENU:
-        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);// Show cursor
-        RenderMainMenu(currentState, window); // Render main menu
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        RenderMainMenu(currentState, window, nextStateAfterLoading);
         break;
     case AppState::INSTRUCTIONS:
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-        RenderInstructions(currentState, window);
+        RenderInstructions(currentState, window, nextStateAfterLoading);
+        break;
+    case AppState::LOADING:
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        RenderLoadingScreen(currentState, window, nextStateAfterLoading);
         break;
     case AppState::PLAYING:
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-            currentState = AppState::MENU;
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            nextStateAfterLoading = AppState::MENU;
+            currentState = AppState::LOADING; // Volver al menú a través de la pantalla de carga
         }
+        break;
+    case AppState::EXIT:
+        glfwSetWindowShouldClose(window, GLFW_TRUE);
         break;
     }
 }
