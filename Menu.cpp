@@ -1,14 +1,17 @@
-﻿#include "Menu.h"
+﻿// Menu.cpp - Renderizado de menús e interfaces principales usando ImGui
+// Menu.cpp - Main menu and interface rendering using ImGui
+
+#include "Menu.h"
+#include "ImGuiManager.h"
 #include "imgui.h"
-#include "ImGuiManager.h" 
-#include <GLFW/glfw3.h>
-#include <cmath> 
+#include <cmath>
 
 #ifndef IM_PI
-#define IM_PI 3.14159265358979323846f 
+#define IM_PI 3.14159265358979323846f
 #endif
 
-// Función de ayuda para centrar texto
+// Centra el texto horizontalmente en la ventana actual
+// Centers the given text horizontally in the current window
 void TextCentered(const char* text) {
     auto windowWidth = ImGui::GetWindowSize().x;
     auto textWidth = ImGui::CalcTextSize(text).x;
@@ -16,7 +19,8 @@ void TextCentered(const char* text) {
     ImGui::Text("%s", text);
 }
 
-// Renderiza la ventana del menú principal y gestiona la interacción del usuario
+// Renderiza el menú principal y gestiona la navegación del usuario
+// Renders the main menu and handles user navigation
 void RenderMainMenu(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading) {
     int screenWidth, screenHeight;
     glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
@@ -24,30 +28,34 @@ void RenderMainMenu(AppState& currentState, GLFWwindow* window, AppState& nextSt
 
     ImGui::SetNextWindowPos(ImVec2(0, 0));
     ImGui::SetNextWindowSize(displaySize);
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f); 
-    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.08f, 0.09f, 0.10f, 1.00f)); 
+    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
+    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.08f, 0.09f, 0.10f, 1.00f));
 
     ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove |
         ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings;
 
     ImGui::Begin("Menu Principal", nullptr, window_flags);
 
-    // --- Título ---
+    // Título principal del menú
+    // Main menu title
     ImGui::PushFont(G_Font_H1);
     ImGui::SetCursorPosY(displaySize.y * 0.2f);
     TextCentered("V-Museum");
     ImGui::PopFont();
 
+    // Subtítulo del menú
+    // Menu subtitle
     ImGui::PushFont(G_Font_Default);
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
     TextCentered("An Immersive Virtual Experience");
     ImGui::PopStyleColor();
     ImGui::PopFont();
 
-    // --- Botones del Menú ---
+    // Botones principales del menú
+    // Main menu buttons
     ImGui::SetCursorPosY(ImGui::GetCursorPosY() + displaySize.y * 0.15f);
     ImGui::PushFont(G_Font_Default);
-    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 10)); 
+    ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(10, 10));
 
     float buttonWidth = 280.0f;
     float buttonHeight = 50.0f;
@@ -76,7 +84,8 @@ void RenderMainMenu(AppState& currentState, GLFWwindow* window, AppState& nextSt
     ImGui::PopStyleVar();
     ImGui::PopFont();
 
-    // --- Footer ---
+    // Pie de página con información del proyecto
+    // Footer with project information
     ImGui::SetCursorPosY(displaySize.y - 40.0f);
     ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
     TextCentered("Virtual Museum Project - 2025");
@@ -87,7 +96,8 @@ void RenderMainMenu(AppState& currentState, GLFWwindow* window, AppState& nextSt
     ImGui::PopStyleVar();
 }
 
-// Renderiza la ventana de instrucciones y permite volver al menú
+// Renderiza la ventana de instrucciones y permite regresar al menú principal
+// Renders the instructions window and allows returning to the main menu
 void RenderInstructions(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading) {
     ImGuiIO& io = ImGui::GetIO();
     ImVec2 center = ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
@@ -97,6 +107,8 @@ void RenderInstructions(AppState& currentState, GLFWwindow* window, AppState& ne
     ImGui::Begin("Instructions", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
     ImGui::PushFont(G_Font_Default);
 
+    // Texto de bienvenida y controles de navegación
+    // Welcome text and navigation controls
     ImGui::TextWrapped("Welcome to the Virtual Museum");
     ImGui::Separator();
     ImGui::Dummy(ImVec2(0.0f, 10.0f));
@@ -108,7 +120,8 @@ void RenderInstructions(AppState& currentState, GLFWwindow* window, AppState& ne
     ImGui::Separator();
     ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
-    // Volver al menú: loading -> MENU
+    // Botón para regresar al menú principal
+    // Button to return to the main menu
     if (ImGui::Button("Return to Menu", ImVec2(-1, 40))) {
         nextStateAfterLoading = AppState::MENU;
         currentState = AppState::LOADING;
@@ -118,21 +131,24 @@ void RenderInstructions(AppState& currentState, GLFWwindow* window, AppState& ne
     ImGui::End();
 }
 
-// Renderiza la pantalla de carga con un spinner animado
+// Renderiza la pantalla de carga con animación de spinner
+// Renders the loading screen with a spinner animation
 void RenderLoadingScreen(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading) {
-    // La pantalla de carga ahora dura un tiempo variable según el destino
     static float loadTimer = 0.0f;
-    float loadDuration = 1.5f; // Duración estándar
+    float loadDuration = 1.5f; // Duración estándar / Standard duration
 
-    // Si el siguiente estado es INSTRUCTIONS o MENU, reducir la duración
+    // Ajusta la duración de la carga según el destino
+    // Adjusts loading duration depending on the destination state
     if (nextStateAfterLoading == AppState::INSTRUCTIONS || nextStateAfterLoading == AppState::MENU) {
-        loadDuration = 0.3f; // Duración más corta para instrucciones o volver al menú
+        loadDuration = 0.3f; // Duración corta para instrucciones o menú / Short duration for instructions or menu
     }
 
     loadTimer += ImGui::GetIO().DeltaTime;
 
+    // Cambia de estado cuando termina la carga
+    // Switches state when loading is complete
     if (loadTimer >= loadDuration) {
-        loadTimer = 0.0f; // Reiniciar timer
+        loadTimer = 0.0f;
         currentState = nextStateAfterLoading;
         if (currentState == AppState::PLAYING) {
             glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -156,7 +172,8 @@ void RenderLoadingScreen(AppState& currentState, GLFWwindow* window, AppState& n
     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.08f, 0.09f, 0.10f, 1.00f));
     ImGui::Begin("Loading", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove);
 
-    // --- Animación de Spinner ---
+    // Dibuja el spinner animado en el centro de la pantalla
+    // Draws the animated spinner at the center of the screen
     ImGui::PushFont(G_Font_Default);
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
     float time = (float)glfwGetTime();
@@ -167,8 +184,8 @@ void RenderLoadingScreen(AppState& currentState, GLFWwindow* window, AppState& n
 
     for (int i = 0; i < num_segments; i++) {
         float a0 = (IM_PI * 2.0f) * ((float)i / num_segments) + time * 8;
-        float a1 = (IM_PI * 2.0f) * ((float)(i + 1) / num_segments) - 0.1f + time * 8; // Pequeño espacio
-        float alpha = 1.0f - (sin(time * 2 + i) * 0.5f + 0.5f); // Efecto de pulso
+        float a1 = (IM_PI * 2.0f) * ((float)(i + 1) / num_segments) - 0.1f + time * 8;
+        float alpha = 1.0f - (sin(time * 2 + i) * 0.5f + 0.5f);
         ImU32 color = ImColor(ImVec4(0.56f, 0.79f, 0.98f, alpha * 0.7f));
         draw_list->AddLine(
             ImVec2(center.x + cos(a0) * radius, center.y + sin(a0) * radius),
@@ -178,6 +195,8 @@ void RenderLoadingScreen(AppState& currentState, GLFWwindow* window, AppState& n
         );
     }
 
+    // Mensaje de carga centrado
+    // Centered loading message
     ImGui::SetCursorPosY(center.y + radius + 30.0f);
     TextCentered("Loading...");
     ImGui::PopFont();
