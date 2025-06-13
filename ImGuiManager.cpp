@@ -1,21 +1,26 @@
+/*
+    ImGuiManager.cpp
+    --------------------------------------------------------------------------------
+    Implementation of ImGui context management for initialization and cleanup.
+    Provides functions for ImGui context and backend setup, custom style, and font loading.
+
+    --------------------------------------------------------------------------------
+    Implementaci贸n de la gesti贸n del contexto de ImGui para inicializaci贸n y limpieza.
+    Proporciona funciones para la configuraci贸n del contexto y backends de ImGui, estilo personalizado y carga de fuentes.
+*/
+
 #include "ImGuiManager.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 #include <iostream>
 
-// Fuentes globales para la interfaz gr醘ica
-// Global fonts for the graphical interface
 ImFont* G_Font_H1 = nullptr;
 ImFont* G_Font_Default = nullptr;
 
-// Aplica un estilo visual personalizado a la interfaz ImGui
-// Applies a custom visual style to the ImGui interface
 void ApplyCustomStyle() {
     ImGuiStyle& style = ImGui::GetStyle();
     ImVec4* colors = style.Colors;
 
-    // Configuraci髇 de la paleta de colores
-    // Color palette configuration
     colors[ImGuiCol_Text] = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
     colors[ImGuiCol_TextDisabled] = ImVec4(0.44f, 0.44f, 0.44f, 1.00f);
     colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
@@ -65,8 +70,6 @@ void ApplyCustomStyle() {
     colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
     colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 
-    // Configuraci髇 de los par醡etros de estilo
-    // Style parameters configuration
     style.WindowPadding = ImVec2(8.00f, 8.00f);
     style.FramePadding = ImVec2(5.00f, 2.00f);
     style.CellPadding = ImVec2(6.00f, 6.00f);
@@ -91,15 +94,12 @@ void ApplyCustomStyle() {
     style.TabRounding = 4;
 }
 
-// Inicializa el contexto y los backends de ImGui
-// Initializes the ImGui context and backends
 void InitImGui(GLFWwindow* window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO& io = ImGui::GetIO(); (void)io;
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard; // Habilita el control por teclado
-    // Carga las fuentes personalizadas para la interfaz
-    // Loads custom fonts for the interface
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
     G_Font_Default = io.Fonts->AddFontFromFileTTF("Roboto-Regular.ttf", 20.0f);
     G_Font_H1 = io.Fonts->AddFontFromFileTTF("Roboto-Bold.ttf", 48.0f);
 
@@ -108,16 +108,12 @@ void InitImGui(GLFWwindow* window) {
         std::cerr << "Asegurate de tener 'Roboto-Regular.ttf' y 'Roboto-Bold.ttf' en el directorio del ejecutable." << std::endl;
     }
 
-    // Aplica el estilo visual personalizado
-    // Applies the custom visual style
     ApplyCustomStyle();
 
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL3_Init("#version 330");
 }
 
-// Libera los recursos de ImGui y sus backends
-// Releases ImGui resources and its backends
 void CleanupImGui() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

@@ -1,36 +1,30 @@
+/*
+    shaderClass.h
+    --------------------------------------------------------------------------------
+    Archivo de cabecera para la declaración de la clase Shader, utilizada para la gestión de shaders en OpenGL.
+    Header file for the declaration of the Shader class, used for shader management in OpenGL.
+*/
+
 #ifndef SHADER_CLASS_H
 #define SHADER_CLASS_H
 
-#include <glad/glad.h>
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-#include <cerrno>
+#include<glad/glad.h>
+#include<iostream>
+#include<fstream>
+#include<sstream>
+#include<iostream>
+#include<cerrno>
 
-// Lee el contenido de un archivo y lo devuelve como string
-// Reads the contents of a file and returns it as a string
 std::string get_file_contents(const char* filename);
 
-// Clase para gestionar programas de shader en OpenGL
-// Class for managing OpenGL shader programs
-class Shader
-{
-public:
-	GLuint ID; // Identificador del programa de shader
-	// Shader program identifier
+class Shader {
 
-// Constructor: compila y enlaza los shaders de v�rtices y fragmentos
-// Constructor: compiles and links vertex and fragment shaders
+public:
+	GLuint ID;
 	Shader(const char* vertexFile, const char* fragmentFile);
 
-	// Activa el programa de shader
-	// Activates the shader program
 	void Activate();
-
-	// Elimina el programa de shader
-	// Deletes the shader program
 	void Delete();
 };
-
 #endif
+

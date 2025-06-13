@@ -1,23 +1,27 @@
-// Definiciones de estado de la aplicación y declaración de interfaces de renderizado de menús
-// Application state definitions and menu rendering interface declarations
+/*
+    Menu.h
+    --------------------------------------------------------------------------------
+    Archivo de cabecera para la definiciÃ³n de estados de la aplicaciÃ³n y funciones de renderizado de menÃºs.
+    Header file for application state definitions and menu rendering functions.
+*/
+
+// Application state definitions and menu rendering interfaces
 #pragma once
 
-// Declaración adelantada de GLFWwindow para evitar incluir la cabecera completa de GLFW
-// Forward declaration of GLFWwindow to avoid including the full GLFW header
+// Forward-declare GLFWwindow para evitar incluir la cabecera completa de GLFW aquï¿½.
+// Esto mejora los tiempos de compilaciï¿½n y evita problemas de orden de inclusiï¿½n.
 struct GLFWwindow;
 
-// Enumeración de los posibles estados de la aplicación
-// Enumeration of possible application states
+// Representa los diferentes estados de la aplicaciï¿½n
 enum class AppState {
-    MENU,         // Menú principal / Main menu
-    INSTRUCTIONS, // Pantalla de instrucciones / Instructions screen
-    LOADING,      // Pantalla de carga / Loading screen
-    PLAYING,      // Juego en curso / Playing
-    EXIT          // Salir de la aplicación / Exit application
+    MENU,         // Menï¿½ principal
+    INSTRUCTIONS, // Pantalla de instrucciones
+    LOADING,      // Pantalla de carga
+    PLAYING,      // Juego
+    EXIT          // Salir de la aplicaciï¿½n
 };
 
-// Funciones para renderizar las diferentes pantallas del menú
-// Functions to render the different menu screens
+// Renders
 void RenderMainMenu(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading);
 void RenderInstructions(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading);
 void RenderLoadingScreen(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading);

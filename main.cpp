@@ -1,25 +1,44 @@
-﻿#include <iostream>
-// GLAD debe incluirse antes que GLFW / GLAD must be included before GLFW
+﻿/*
+    main.cpp
+    --------------------------------------------------------------------------------
+    Archivo principal de entrada para la aplicación V-Museum. Se encarga de la inicialización de la ventana, configuración del contexto OpenGL, ciclo principal de la aplicación y gestión de la escena y recursos globales.
+    Aquí se coordinan los estados de la aplicación, la integración de ImGui, la carga de modelos y la interacción principal del usuario.
+
+    --------------------------------------------------------------------------------
+    Main entry point for the V-Museum application. Responsible for window initialization, OpenGL context setup, main application loop, and management of the scene and global resources.
+    This file coordinates application states, ImGui integration, model loading, and main user interaction.
+*/
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <iostream>
 
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
-
 #include "ImGuiManager.h"
 #include "Menu.h"
-#include "shaderClass.h"
+#include "Model.h"
 #include "Camera.h"
+#include "shaderClass.h"
 
-// Declaración de prototipos de funciones principales
-// Main function prototypes declaration
+// Objetos globales de la escena 3D
+// Global objects for the 3D scene
+Camera* g_camera = nullptr;
+Shader* g_shaderProgram = nullptr;
+Model* g_model = nullptr;
+glm::vec4 g_lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+glm::vec3 g_lightPos = glm::vec3(0.5f, 2.0f, 2.0f);
+
+
 void SetClearColor(AppState state);
-void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading, Camera& camera);
+void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading, float deltaTime);
+void Init3DScene(int screenWidth, int screenHeight);
+void Cleanup3DScene();
 
+// Función principal de la aplicación
+// Main application function
 int main() {
-    // Inicialización de GLFW y configuración de la ventana
-    // GLFW initialization and window setup
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW\n";
         return -1;
@@ -30,8 +49,6 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
-    // Creación de la ventana principal de la aplicación
-    // Main application window creation
     GLFWwindow* window = glfwCreateWindow(1280, 720, "V-Museum", nullptr, nullptr);
     if (!window) {
         std::cerr << "Failed to create GLFW window\n";
@@ -40,134 +57,91 @@ int main() {
     }
     glfwMakeContextCurrent(window);
 
-    // Inicialización de GLAD para la gestión de funciones OpenGL
-    // GLAD initialization for OpenGL function management
+    // Inicialización de GLAD
+    // GLAD initialization
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cerr << "Failed to initialize GLAD\n";
+        std::cerr << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
-    glEnable(GL_DEPTH_TEST);
 
-    // Inicialización de ImGui para la interfaz gráfica
-    // ImGui initialization for graphical interface
-    InitImGui(window);
-
-    // Configuración del shader principal de la escena
-    // Main scene shader setup
-    Shader shaderProgram("default.vert", "default.frag");
-
-    // Definición de los vértices y colores de un cubo de demostración
-    // Definition of vertices and colors for a demo cube
-    GLfloat vertices[] = {
-        // POSITIONS           // COLORS
-        -0.5f, -0.5f, -0.5f,  1.0f, 0.0f, 0.0f,
-         0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f,
-         0.5f,  0.5f, -0.5f,  0.0f, 0.0f, 1.0f,
-        -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,
-        -0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 1.0f,
-         0.5f, -0.5f,  0.5f,  0.0f, 1.0f, 1.0f,
-         0.5f,  0.5f,  0.5f,  1.0f, 1.0f, 1.0f,
-        -0.5f,  0.5f,  0.5f,  0.5f, 0.5f, 0.5f,
-    };
-    GLuint indices[] = {
-        0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7,
-        0, 4, 7, 0, 7, 3, 1, 5, 6, 1, 6, 2,
-        0, 1, 5, 0, 5, 4, 3, 2, 6, 3, 6, 7
-    };
-
-    // Generación y configuración de buffers y arrays para el cubo
-    // Generation and setup of buffers and arrays for the cube
-    GLuint VAO, VBO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-    glBindVertexArray(VAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-    glEnableVertexAttribArray(1);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glBindVertexArray(0);
-
-    // Obtención del tamaño real de la ventana para la cámara
-    // Get actual window size for camera setup
     int screenWidth, screenHeight;
     glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
-
-    // Creación de la cámara principal de la escena
-    // Main scene camera creation
-    Camera camera(screenWidth, screenHeight, glm::vec3(0.0f, 0.0f, 2.0f));
-
-    // Variables de estado de la aplicación
-    // Application state variables
+    glViewport(0, 0, screenWidth, screenHeight);
+    glEnable(GL_DEPTH_TEST);
+    Init3DScene(screenWidth, screenHeight);
+    InitImGui(window);
     AppState currentState = AppState::MENU;
     AppState nextStateAfterLoading = AppState::MENU;
-
-    // Bucle principal de la aplicación
-    // Main application loop
+    float lastFrame = 0.0f;
+    float deltaTime = 0.0f;
     while (!glfwWindowShouldClose(window)) {
+        // Cálculo de deltaTime para animaciones y lógica dependiente del tiempo
+        // DeltaTime calculation for animations and time-dependent logic
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
         glfwPollEvents();
-
-        // Limpieza de la pantalla y configuración del color de fondo
-        // Screen clearing and background color setup
-        SetClearColor(currentState);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Renderizado 3D solo en modo PLAYING
-        // 3D rendering only in PLAYING mode
-        if (currentState == AppState::PLAYING) {
-            shaderProgram.Activate();
-            camera.Matrix(shaderProgram, "camMatrix");
-            glBindVertexArray(VAO);
-            glDrawElements(GL_TRIANGLES, sizeof(indices) / sizeof(int), GL_UNSIGNED_INT, 0);
-            glBindVertexArray(0);
-        }
-
-        // Renderizado de la interfaz gráfica con ImGui
-        // Graphical interface rendering with ImGui
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-
-        RenderState(currentState, window, nextStateAfterLoading, camera);
-
+        SetClearColor(currentState);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        RenderState(currentState, window, nextStateAfterLoading, deltaTime);
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
         glfwSwapBuffers(window);
     }
-
-    // Liberación de recursos y cierre de la aplicación
-    // Resource cleanup and application shutdown
-    shaderProgram.Delete();
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
+    Cleanup3DScene();
     CleanupImGui();
     glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }
 
-// Establece el color de limpieza de la pantalla según el estado de la aplicación
-// Sets the screen clear color based on the application state
-void SetClearColor(AppState state) {
-    if (state == AppState::PLAYING) {
-        glClearColor(0.1f, 0.2f, 0.3f, 1.0f);
+// Inicializa la escena 3D: shaders, cámara y modelo
+// Initializes the 3D scene: shaders, camera, and model
+void Init3DScene(int screenWidth, int screenHeight)
+{
+    g_shaderProgram = new Shader("default.vert", "default.frag");
+    g_shaderProgram->Activate();
+    glUniform4f(glGetUniformLocation(g_shaderProgram->ID, "lightColor"), g_lightColor.x, g_lightColor.y, g_lightColor.z, g_lightColor.w);
+    glUniform3f(glGetUniformLocation(g_shaderProgram->ID, "lightPos"), g_lightPos.x, g_lightPos.y, g_lightPos.z);
+
+    g_camera = new Camera(screenWidth, screenHeight, glm::vec3(0.0f, 1.0f, 5.0f));
+
+    try {
+        g_model = new Model("models/gallery_01/scene.gltf");
     }
-    else {
-        ImVec4 clear_color = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
-        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+    catch (const std::exception& e) {
+        std::cerr << "ERROR AL CARGAR EL MODELO: " << e.what() << std::endl;
     }
 }
 
-// Gestiona el renderizado y la lógica de cada estado de la aplicación
-// Handles rendering and logic for each application state
-void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading, Camera& camera) {
+// Libera los recursos de la escena 3D
+// Releases 3D scene resources
+void Cleanup3DScene()
+{
+    delete g_model;
+    delete g_camera;
+    g_shaderProgram->Delete();
+    delete g_shaderProgram;
+}
+
+// Establece el color de fondo según el estado de la aplicación
+// Sets the background color according to the application state
+void SetClearColor(AppState state) {
+    if (state == AppState::PLAYING) {
+        glClearColor(0.07f, 0.13f, 0.17f, 1.0f);
+    }
+    else {
+        ImVec4 clear_color = ImGui::GetStyle().Colors[ImGuiCol_WindowBg];
+        glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+    }
+}
+
+// Renderiza el estado actual de la aplicación (menú, instrucciones, carga, juego, salir)
+// Renders the current application state (menu, instructions, loading, playing, exit)
+void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading, float deltaTime) {
     switch (currentState) {
     case AppState::MENU:
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -182,16 +156,33 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
         RenderLoadingScreen(currentState, window, nextStateAfterLoading);
         break;
     case AppState::PLAYING:
-        // Procesamiento de entradas y retorno al menú si se presiona ESC
-        // Input processing and return to menu if ESC is pressed
-        camera.Inputs(window);
-
+        // Permite volver al menú presionando ESC
+        // Allows returning to menu by pressing ESC
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             nextStateAfterLoading = AppState::MENU;
             currentState = AppState::LOADING;
-            camera.ResetFirstClick();
-            glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
+
+        g_camera->Inputs(window, deltaTime);
+        g_camera->updateMatrix(65.0f, 0.1f, 1000.0f);
+
+        if (g_model && g_shaderProgram)
+        {
+            glm::mat4 modelMatrix = glm::mat4(1.0f);
+            modelMatrix = glm::rotate(modelMatrix, glm::radians(-180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f));
+
+            g_model->Draw(*g_shaderProgram, *g_camera, modelMatrix);
+        }
+
+        // Ventana de información de depuración
+        // Debug info window
+        ImGui::Begin("Debug Info");
+        ImGui::Text("Estado: PLAYING");
+        ImGui::Text("Pos: (%.2f, %.2f, %.2f)", g_camera->Position.x, g_camera->Position.y, g_camera->Position.z);
+        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
+        ImGui::End();
+
         break;
     case AppState::EXIT:
         glfwSetWindowShouldClose(window, GLFW_TRUE);

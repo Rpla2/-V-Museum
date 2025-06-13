@@ -1,7 +1,17 @@
-#include "Camera.h"
+/*
+    Camera.cpp
+    --------------------------------------------------------------------------------
+    Archivo de implementaci贸n de la clase Camera. Gestiona la navegaci贸n 3D, el movimiento, la orientaci贸n y la matriz de vista de la c谩mara en la aplicaci贸n.
+    Proporciona m茅todos para actualizar la matriz de la c谩mara, manejar entradas del usuario y exportar la matriz para su uso en shaders.
 
-// Constructor de la c醡ara: inicializa el tama駉 de la ventana y la posici髇 de la c醡ara
-// Camera constructor: initializes window size and camera position
+    --------------------------------------------------------------------------------
+    Implementation file for the Camera class. Manages 3D navigation, movement, orientation, and the camera view matrix in the application.
+    Provides methods to update the camera matrix, handle user input, and export the matrix for use in shaders.
+*/
+
+#include "Camera.h"
+#include "imgui.h"
+
 Camera::Camera(int width, int height, glm::vec3 position)
 {
 	Camera::width = width;
@@ -9,87 +19,76 @@ Camera::Camera(int width, int height, glm::vec3 position)
 	Position = position;
 }
 
-// Calcula y env韆 la matriz de vista-proyecci髇 al shader
-// Calculates and sends the view-projection matrix to the shader
+void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
+{
+	glm::mat4 view = glm::lookAt(Position, Position + Orientation, Up);
+	glm::mat4 projection = glm::perspective(glm::radians(FOVdeg), (float)width / height, nearPlane, farPlane);
+	cameraMatrix = projection * view;
+}
+
 void Camera::Matrix(Shader& shader, const char* uniform)
 {
-	if (width == 0 || height == 0) return;
-
-	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
-
-	view = glm::lookAt(Position, Position + Orientation, Up);
-	projection = glm::perspective(glm::radians(45.0f), (float)width / height, 0.1f, 100.0f);
-
-	cameraMatrix = projection * view;
-
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
 
-// Gestiona la entrada del usuario para el movimiento y rotaci髇 de la c醡ara
-// Handles user input for camera movement and rotation
-void Camera::Inputs(GLFWwindow* window)
+void Camera::Inputs(GLFWwindow* window, float deltaTime)
 {
-	// Movimiento con teclas WASD, espacio y control
-	// Movement with WASD keys, space and control
-	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		Position += speed * Orientation;
-	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		Position += speed * -glm::normalize(glm::cross(Orientation, Up));
-	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		Position += speed * -Orientation;
-	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		Position += speed * glm::normalize(glm::cross(Orientation, Up));
-	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		Position += speed * Up;
-	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-		Position += speed * -Up;
+	if (ImGui::GetIO().WantCaptureMouse || ImGui::GetIO().WantCaptureKeyboard)
+	{
+		if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_HIDDEN)
+		{
+			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			firstClick = true;
+		}
+		return;
+	}
 
-	// Ajuste de velocidad con la tecla Shift
-	// Speed adjustment with Shift key
+	float currentSpeed = speed;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-		speed = 0.4f;
-	else if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_RELEASE)
-		speed = 0.1f;
+		currentSpeed *= 2.0f;
 
-	// Obtenci髇 de la posici髇 actual del cursor
-	// Get current mouse cursor position
-	double mouseX;
-	double mouseY;
-	glfwGetCursorPos(window, &mouseX, &mouseY);
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+		Position += currentSpeed * deltaTime * Orientation;
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+		Position -= currentSpeed * deltaTime * Orientation;
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+		Position -= currentSpeed * deltaTime * glm::normalize(glm::cross(Orientation, Up));
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+		Position += currentSpeed * deltaTime * glm::normalize(glm::cross(Orientation, Up));
+	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+		Position += currentSpeed * deltaTime * Up;
+	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
+		Position -= currentSpeed * deltaTime * Up;
 
-	// Centra el cursor la primera vez para evitar saltos bruscos
-	// Center the cursor the first time to avoid abrupt jumps
-	if (firstClick)
+	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
-		glfwSetCursorPos(window, (width / 2.0), (height / 2.0));
-		firstClick = false;
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+
+		if (firstClick)
+		{
+			glfwSetCursorPos(window, (width / 2), (height / 2));
+			firstClick = false;
+		}
+
+		double mouseX, mouseY;
+		glfwGetCursorPos(window, &mouseX, &mouseY);
+
+		float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
+		float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
+
+		glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
+
+		if (abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f))
+		{
+			Orientation = newOrientation;
+		}
+
+		Orientation = glm::rotate(Orientation, glm::radians(-rotY), Up);
+		glfwSetCursorPos(window, (width / 2), (height / 2));
 	}
-
-	// C醠culo de la rotaci髇 de la c醡ara seg鷑 el movimiento del rat髇
-	// Calculate camera rotation based on mouse movement
-	float rotX = sensitivity * (float)(mouseY - (height / 2.0)) / height;
-	float rotY = sensitivity * (float)(mouseX - (width / 2.0)) / width;
-
-	glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
-
-	// Limita la rotaci髇 vertical para evitar invertir la c醡ara
-	// Limit vertical rotation to prevent camera inversion
-	if (abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f))
+	else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
 	{
-		Orientation = newOrientation;
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		firstClick = true;
 	}
-
-	Orientation = glm::rotate(Orientation, glm::radians(-rotY), Up);
-
-	// Restaura el cursor al centro de la ventana tras procesar la entrada
-	// Restore cursor to window center after processing input
-	glfwSetCursorPos(window, (width / 2.0), (height / 2.0));
-}
-
-// Restablece el estado de primer clic para el control del rat髇
-// Resets the first click state for mouse control
-void Camera::ResetFirstClick()
-{
-	firstClick = true;
 }

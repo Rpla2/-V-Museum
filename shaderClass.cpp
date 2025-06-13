@@ -1,7 +1,16 @@
+/*
+    shaderClass.cpp
+    --------------------------------------------------------------------------------
+    Archivo de implementaci贸n de la clase Shader. Gestiona la carga, compilaci贸n, activaci贸n y eliminaci贸n de shaders en OpenGL, permitiendo la programaci贸n de gr谩ficos personalizados.
+    Incluye utilidades para leer archivos de shader y manipular programas de shader.
+
+    --------------------------------------------------------------------------------
+    Implementation file for the Shader class. Manages loading, compiling, activating, and deleting shaders in OpenGL, enabling custom graphics programming.
+    Includes utilities for reading shader files and handling shader programs.
+*/
+
 #include"shaderClass.h"
 
-// Lee el contenido de un archivo y lo devuelve como una cadena
-// Reads the contents of a file and returns it as a string
 std::string get_file_contents(const char* filename)
 {
 	std::ifstream in(filename, std::ios::binary);
@@ -14,12 +23,13 @@ std::string get_file_contents(const char* filename)
 		in.read(&contents[0], contents.size());
 		in.close();
 		return(contents);
+
 	}
 	throw(errno);
 }
 
-// Constructor de Shader: compila y enlaza los shaders de v閞tices y fragmentos
-// Shader constructor: compiles and links vertex and fragment shaders
+//Procedemos a contruir el constructor de sombras
+
 Shader::Shader(const char* vertexFile, const char* fragmentFile)
 {
 	std::string vertexCode = get_file_contents(vertexFile);
@@ -28,33 +38,46 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	const char* vertexSource = vertexCode.c_str();
 	const char* fragmentSource = fragmentCode.c_str();
 
+	//Create Vertex Shader Object and get its reference
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+
+	//Attach Vertex Shader source to the Vertex Shader Object
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
+
+	//Compile the Vertex Shader into machine code
 	glCompileShader(vertexShader);
 
+	//Create Fragment Shader Object and get its reference
 	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+
+	//Attach Fragment Shader source to the Fragment Shader Object
 	glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
+
+	//Compile the Vertex Shader into machine code
 	glCompileShader(fragmentShader);
 
+	//Create Shader Program Object and get its reference
 	ID = glCreateProgram();
+
+	//Attach the Vertex and Fragment Shaders to the Shader Program
 	glAttachShader(ID, vertexShader);
 	glAttachShader(ID, fragmentShader);
+
+	//Link all the shaders together into the Shader Program
 	glLinkProgram(ID);
 
+	//Delete the now useless Vertex and Fragment Shader Objects
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
 }
 
-// Activa el programa de shader para su uso en la GPU
-// Activates the shader program for use on the GPU
 void Shader::Activate()
 {
 	glUseProgram(ID);
 }
 
-// Elimina el programa de shader de la GPU
-// Deletes the shader program from the GPU
 void Shader::Delete()
 {
-	glDeleteProgram(ID);
+	glUseProgram(ID);
 }
+
