@@ -1,12 +1,12 @@
 ﻿/*
     main.cpp
     --------------------------------------------------------------------------------
-    Archivo principal de entrada para la aplicación V-Museum. Se encarga de la inicialización de la ventana, configuración del contexto OpenGL, ciclo principal de la aplicación y gestión de la escena y recursos globales.
-    Aquí se coordinan los estados de la aplicación, la integración de ImGui, la carga de modelos y la interacción principal del usuario.
+    Main entry point for the V-Museum application.
+    Handles window creation, OpenGL context setup, main loop, and scene management.
 
     --------------------------------------------------------------------------------
-    Main entry point for the V-Museum application. Responsible for window initialization, OpenGL context setup, main application loop, and management of the scene and global resources.
-    This file coordinates application states, ImGui integration, model loading, and main user interaction.
+    Punto de entrada principal para la aplicación V-Museum.
+    Gestiona la creación de la ventana, configuración del contexto OpenGL, bucle principal y gestión de la escena.
 */
 
 #include <glad/glad.h>
@@ -26,13 +26,38 @@
 // Global objects for the 3D scene
 Camera* g_camera = nullptr;
 Shader* g_shaderProgram = nullptr;
+
+// Modelos 3D
 Model* g_model = nullptr;
+Model* g_statua_1 = nullptr;
+Model* g_statua_2 = nullptr;
+
+struct ObraInfo {
+    std::string nombre;
+    std::string autor;
+    std::string año;
+    std::string descripcion;
+    glm::vec3 posicion;
+    float radioInteraccion;
+};
+
+
+std::vector<ObraInfo> obras = {
+    {"Venus de Milo", "Alexandros de Antioquía", "Siglo II a.C.", "Una de las esculturas más famosas de la antigua Grecia, expuesta en el Museo del Louvre.", 
+    glm::vec3(3.3f, 3.34f, -3.88f), 2.0f},
+    {"Discóbolo de Mirón", "Mirón", "Siglo V a.C.", "Escultura clásica que representa a un atleta lanzando un disco.", 
+    glm::vec3(-2.45f, 3.34f, -4.0f), 2.0f},
+    
+};
+
+
 glm::vec4 g_lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 glm::vec3 g_lightPos = glm::vec3(0.5f, 2.0f, 2.0f);
 
 
 void SetClearColor(AppState state);
 void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading, float deltaTime);
+void MostrarInfoObraCercana(const glm::vec3& camPos, GLFWwindow* window);
 void Init3DScene(int screenWidth, int screenHeight);
 void Cleanup3DScene();
 
@@ -107,10 +132,12 @@ void Init3DScene(int screenWidth, int screenHeight)
     glUniform4f(glGetUniformLocation(g_shaderProgram->ID, "lightColor"), g_lightColor.x, g_lightColor.y, g_lightColor.z, g_lightColor.w);
     glUniform3f(glGetUniformLocation(g_shaderProgram->ID, "lightPos"), g_lightPos.x, g_lightPos.y, g_lightPos.z);
 
-    g_camera = new Camera(screenWidth, screenHeight, glm::vec3(0.0f, 1.0f, 5.0f));
+    g_camera = new Camera(screenWidth, screenHeight, glm::vec3(0.0f, 3.40f, 5.0f));
 
     try {
         g_model = new Model("models/gallery_01/scene.gltf");
+        g_statua_1 = new Model("models/venus_de_milo/scene.gltf");
+		g_statua_2 = new Model("models/the_discobolus_of_myron/scene.gltf");
     }
     catch (const std::exception& e) {
         std::cerr << "ERROR AL CARGAR EL MODELO: " << e.what() << std::endl;
@@ -122,6 +149,8 @@ void Init3DScene(int screenWidth, int screenHeight)
 void Cleanup3DScene()
 {
     delete g_model;
+    delete g_statua_1;
+    delete g_statua_2;
     delete g_camera;
     g_shaderProgram->Delete();
     delete g_shaderProgram;
@@ -142,6 +171,8 @@ void SetClearColor(AppState state) {
 // Renderiza el estado actual de la aplicación (menú, instrucciones, carga, juego, salir)
 // Renders the current application state (menu, instructions, loading, playing, exit)
 void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading, float deltaTime) {
+
+    //currentState = AppState::PLAYING;
     switch (currentState) {
     case AppState::MENU:
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -156,23 +187,42 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
         RenderLoadingScreen(currentState, window, nextStateAfterLoading);
         break;
     case AppState::PLAYING:
+
         // Permite volver al menú presionando ESC
         // Allows returning to menu by pressing ESC
         if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
             nextStateAfterLoading = AppState::MENU;
             currentState = AppState::LOADING;
         }
+        
+        MostrarInfoObraCercana(g_camera->Position, window);
 
         g_camera->Inputs(window, deltaTime);
-        g_camera->updateMatrix(65.0f, 0.1f, 1000.0f);
+        g_camera->updateMatrix(65.0f, 0.1f, 100.0f);
 
         if (g_model && g_shaderProgram)
         {
+			//edificio
             glm::mat4 modelMatrix = glm::mat4(1.0f);
             modelMatrix = glm::rotate(modelMatrix, glm::radians(-180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            modelMatrix = glm::scale(modelMatrix, glm::vec3(0.5f));
-
+            modelMatrix = glm::scale(modelMatrix, glm::vec3(2.0f));
             g_model->Draw(*g_shaderProgram, *g_camera, modelMatrix);
+
+			//estatua venus_de_milo
+			glm::mat4 statueMatrix1 = glm::mat4(1.0f);
+			statueMatrix1 = glm::translate(statueMatrix1, glm::vec3(-3.0f, 0.0f, 7.6f));
+            statueMatrix1 = glm::scale(statueMatrix1, glm::vec3(20.0f));
+			statueMatrix1 = glm::rotate(statueMatrix1, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            statueMatrix1 = glm::rotate(statueMatrix1, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+			g_statua_1->Draw(*g_shaderProgram, *g_camera, statueMatrix1);
+
+            glm::mat4 statuaMatrix2 = glm::mat4(1.0f);
+			statuaMatrix2 = glm::translate(statuaMatrix2, glm::vec3(3.5f, 0.0f, 6.6f));
+			statuaMatrix2 = glm::rotate(statuaMatrix2, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+			statuaMatrix2 = glm::rotate(statuaMatrix2, glm::radians(-180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+			statuaMatrix2 = glm::scale(statuaMatrix2, glm::vec3(2.5f));
+			g_statua_2->Draw(*g_shaderProgram, *g_camera, statuaMatrix2);
+
         }
 
         // Ventana de información de depuración
@@ -184,8 +234,32 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
         ImGui::End();
 
         break;
-    case AppState::EXIT:
+        case AppState::EXIT:
         glfwSetWindowShouldClose(window, GLFW_TRUE);
         break;
+    }
+}
+
+// Muestra la información de la obra de arte más cercana si el usuario está dentro del rango y presiona la tecla L
+// Shows the info window for the nearest artwork if the user is within range and presses the L key
+void MostrarInfoObraCercana(const glm::vec3& camPos, GLFWwindow* window) {
+    for (const auto& obra : obras) {
+        float distancia = glm::distance(camPos, obra.posicion);
+
+        ImVec2 ventanaSize = ImVec2(350, 220);
+        ImVec2 ventanaPos = ImVec2(20, 40);  
+
+        ImGui::SetNextWindowSize(ventanaSize, ImGuiCond_Always);
+        ImGui::SetNextWindowPos(ventanaPos, ImGuiCond_Always);
+        
+        if (distancia < obra.radioInteraccion && glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+            ImGui::Begin("Información de la Obra", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+            ImGui::Text("Nombre: %s", obra.nombre.c_str());
+            ImGui::Text("Autor: %s", obra.autor.c_str());
+            ImGui::Text("Año: %s", obra.año.c_str());
+            ImGui::TextWrapped("%s", obra.descripcion.c_str());
+            ImGui::End();
+            break;
+        }
     }
 }
