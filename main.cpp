@@ -31,6 +31,9 @@ Shader* g_shaderProgram = nullptr;
 Model* g_model = nullptr;
 Model* g_statua_1 = nullptr;
 Model* g_statua_2 = nullptr;
+Model* g_statua_3 = nullptr;
+Model* g_statua_4 = nullptr;
+Model* g_statua_5 = nullptr;
 
 struct ObraInfo {
     std::string nombre;
@@ -132,12 +135,16 @@ void Init3DScene(int screenWidth, int screenHeight)
     glUniform4f(glGetUniformLocation(g_shaderProgram->ID, "lightColor"), g_lightColor.x, g_lightColor.y, g_lightColor.z, g_lightColor.w);
     glUniform3f(glGetUniformLocation(g_shaderProgram->ID, "lightPos"), g_lightPos.x, g_lightPos.y, g_lightPos.z);
 
-    g_camera = new Camera(screenWidth, screenHeight, glm::vec3(0.0f, 3.40f, 5.0f));
+    g_camera = new Camera(screenWidth, screenHeight, glm::vec3(7.89f, 1.45f, -18.07f));
 
     try {
         g_model = new Model("models/gallery_01/scene.gltf");
         g_statua_1 = new Model("models/venus_de_milo/scene.gltf");
 		g_statua_2 = new Model("models/the_discobolus_of_myron/scene.gltf");
+        g_statua_3 = new Model("models/napoleon/scene.gltf");
+        g_statua_4 = new Model("models/julio_cesar/scene.gltf");
+        g_statua_5 = new Model("models/william_shakespeare_statue/scene.gltf");
+     
     }
     catch (const std::exception& e) {
         std::cerr << "ERROR AL CARGAR EL MODELO: " << e.what() << std::endl;
@@ -151,6 +158,10 @@ void Cleanup3DScene()
     delete g_model;
     delete g_statua_1;
     delete g_statua_2;
+    delete g_statua_3;
+    delete g_statua_4;
+    delete g_statua_5;
+   
     delete g_camera;
     g_shaderProgram->Delete();
     delete g_shaderProgram;
@@ -172,7 +183,7 @@ void SetClearColor(AppState state) {
 // Renders the current application state (menu, instructions, loading, playing, exit)
 void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading, float deltaTime) {
 
-    //currentState = AppState::PLAYING;
+    currentState = AppState::PLAYING;
     switch (currentState) {
     case AppState::MENU:
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -216,12 +227,41 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
             statueMatrix1 = glm::rotate(statueMatrix1, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 			g_statua_1->Draw(*g_shaderProgram, *g_camera, statueMatrix1);
 
+			// estatua discobolo
             glm::mat4 statuaMatrix2 = glm::mat4(1.0f);
 			statuaMatrix2 = glm::translate(statuaMatrix2, glm::vec3(3.5f, 0.0f, 6.6f));
 			statuaMatrix2 = glm::rotate(statuaMatrix2, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 			statuaMatrix2 = glm::rotate(statuaMatrix2, glm::radians(-180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 			statuaMatrix2 = glm::scale(statuaMatrix2, glm::vec3(2.5f));
 			g_statua_2->Draw(*g_shaderProgram, *g_camera, statuaMatrix2);
+
+			// Napoleon
+            glm::mat4 statuaMatrix3 = glm::mat4(0.5f);
+            statuaMatrix3 = glm::translate(statuaMatrix3, glm::vec3(0.0f, 0.0f, -17.6f));
+            statuaMatrix3 = glm::rotate(statuaMatrix3, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            statuaMatrix3 = glm::rotate(statuaMatrix3, glm::radians(-360.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+            statuaMatrix3 = glm::scale(statuaMatrix3, glm::vec3(0.1f));
+            g_statua_3->Draw(*g_shaderProgram, *g_camera, statuaMatrix3);
+
+            // Cesar
+            glm::mat4 statuaMatrix4 = glm::mat4(1.0f);
+            statuaMatrix4 = glm::translate(statuaMatrix4, glm::vec3(0.0f, -2.5f, -13.6f));
+            statuaMatrix4 = glm::rotate(statuaMatrix4, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            statuaMatrix4 = glm::rotate(statuaMatrix4, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            statuaMatrix4 = glm::scale(statuaMatrix4, glm::vec3(2.5f));
+            g_statua_4->Draw(*g_shaderProgram, *g_camera, statuaMatrix4);
+           
+            // william_shakespeare_statue
+            glm::mat4 statuaMatrix5 = glm::mat4(1.0f);
+            statuaMatrix5 = glm::translate(statuaMatrix5, glm::vec3(0.0f, 0.0f, 18.6f));
+            statuaMatrix5 = glm::rotate(statuaMatrix5, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+            statuaMatrix5 = glm::rotate(statuaMatrix5, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+            statuaMatrix5 = glm::scale(statuaMatrix5, glm::vec3(2.05f));
+            g_statua_5->Draw(*g_shaderProgram, *g_camera, statuaMatrix5);
+
+            
+
+
 
         }
 

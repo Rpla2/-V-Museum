@@ -1,0 +1,11 @@
+Model Information:
+* title:	William Shakespeare Statue
+* source:	https://sketchfab.com/3d-models/william-shakespeare-statue-35a011fbb46d4403a7a0235fa1cf85cd
+* author:	davidgersch (https://sketchfab.com/davidgersch)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "William Shakespeare Statue" (https://sketchfab.com/3d-models/william-shakespeare-statue-35a011fbb46d4403a7a0235fa1cf85cd) by davidgersch (https://sketchfab.com/davidgersch) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

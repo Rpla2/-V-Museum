@@ -1,0 +1,11 @@
+Model Information:
+* title:	Equestrian statue of Napoleon
+* source:	https://sketchfab.com/3d-models/equestrian-statue-of-napoleon-ad3fe0536f4f40c5a2de5b5649b2e639
+* author:	Loïc Norgeot (https://sketchfab.com/norgeotloic)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Equestrian statue of Napoleon" (https://sketchfab.com/3d-models/equestrian-statue-of-napoleon-ad3fe0536f4f40c5a2de5b5649b2e639) by Loïc Norgeot (https://sketchfab.com/norgeotloic) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
