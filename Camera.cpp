@@ -36,6 +36,8 @@ void Camera::Matrix(Shader& shader, const char* uniform)
 
 void Camera::Inputs(GLFWwindow* window, float deltaTime)
 {
+	// Deshabilita captura del ratón por ImGui para evitar parpadeo del cursor / Disable ImGui mouse capture to prevent cursor flickering
+#if 0
 	if (ImGui::GetIO().WantCaptureMouse || ImGui::GetIO().WantCaptureKeyboard)
 	{
 		if (glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_HIDDEN)
@@ -45,6 +47,7 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
 		}
 		return;
 	}
+#endif
 
 	float currentSpeed = speed;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
@@ -78,35 +81,34 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
 			Position.z += move.z;
 	}
 
-	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
+	// Continuous free-look: disable and hide cursor / Free look continuo: bloquear y ocultar cursor
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+	if (firstClick)
 	{
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-
-		if (firstClick)
-		{
-			glfwSetCursorPos(window, (width / 2), (height / 2));
-			firstClick = false;
-		}
-
-		double mouseX, mouseY;
-		glfwGetCursorPos(window, &mouseX, &mouseY);
-
-		float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
-		float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
-
-		glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
-
-		if (abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f))
-		{
-			Orientation = newOrientation;
-		}
-
-		Orientation = glm::rotate(Orientation, glm::radians(-rotY), Up);
 		glfwSetCursorPos(window, (width / 2), (height / 2));
+		firstClick = false;
 	}
-	else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+	double mouseX, mouseY;
+	glfwGetCursorPos(window, &mouseX, &mouseY);
+	// Calculate and apply rotation based on mouse movement / Calcular rotación según movimiento del ratón
+	float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
+	float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
+	glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
+	if (abs(glm::angle(newOrientation, Up) - glm::radians(90.0f)) <= glm::radians(85.0f))
 	{
-		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-		firstClick = true;
+		Orientation = newOrientation;
 	}
+	Orientation = glm::rotate(Orientation, glm::radians(-rotY), Up);
+	// Recentrar cursor al centro de la ventana / Recenter cursor to window center
+	glfwSetCursorPos(window, (width / 2), (height / 2));
 }
+
+// Deshabilitar restauración del cursor al soltar el botón para free look continuo
+// Disable cursor restoration on button release for continuous free look
+#if 0
+else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE)
+{
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    firstClick = true;
+}
+#endif

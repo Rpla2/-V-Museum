@@ -111,6 +111,8 @@ int main() {
         return -1;
     }
     glfwMakeContextCurrent(window);
+    // Deshabilitar cursor para free look continuo
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Inicialización de GLAD
     // GLAD initialization
@@ -290,13 +292,13 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
 
         // Ventana de información de depuración
         // Debug info window
-        ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
+       /* ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
         ImGui::Begin("Debug Info");
         ImGui::Text("Estado: PLAYING");
         ImGui::Text("Pos: (%.2f, %.2f, %.2f)", g_camera->Position.x, g_camera->Position.y, g_camera->Position.z);
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         ImGui::End();
-        break;
+        break;*/
     }
 }
 
