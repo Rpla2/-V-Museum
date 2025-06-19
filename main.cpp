@@ -38,7 +38,7 @@ Model* g_statua_2 = nullptr;
 Model* g_statua_3 = nullptr;
 Model* g_statua_4 = nullptr;
 Model* g_statua_5 = nullptr;
-//Model* g_statua_6 = nullptr;
+Model* g_statua_6 = nullptr;
 Model* g_statua_7 = nullptr;
 
 struct ObraInfo {
@@ -171,7 +171,7 @@ void Init3DScene(int screenWidth, int screenHeight)
         g_statua_3 = new Model("models/napoleon/scene.gltf");
         g_statua_4 = new Model("models/julio_cesar/scene.gltf");
         g_statua_5 = new Model("models/william_shakespeare_statue/scene.gltf");
-        //g_statua_6 = new Model("models/alexander_puschkin/scene.gltf");
+        g_statua_6 = new Model("models/hans_christian_andersen/scene.gltf");
 		g_statua_7 = new Model("models/busto_de_cervantes/scene.gltf");
 		std::cout << "MODELOS CARGADOS CORRECTAMENTE" << std::endl;
     }
@@ -190,9 +190,8 @@ void Cleanup3DScene()
     delete g_statua_3;
     delete g_statua_4;
     delete g_statua_5;
-	//delete g_statua_6;
+	delete g_statua_6;
 	delete g_statua_7;
-   
     delete g_camera;
     g_shaderProgram->Delete();
     delete g_shaderProgram;
@@ -268,9 +267,9 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
             glm::mat4 statuaMatrix5 = ComputeTransform(glm::vec3(0.0f, 0.0f, 18.4f), glm::vec3(0.0f, -90.0f, 180.0f), 3.05f);
             g_statua_5->Draw(*g_shaderProgram, *g_camera, statuaMatrix5);
 
-            // Estatua Alexander Pushkin
-            /*glm::mat4 statuaMatrix6 = ComputeTransform(glm::vec3(9.0f, 0.0f, 18.6f), glm::vec3(0.0f, 180.0f, -90.0f), 0.19f);
-            g_statua_6->Draw(*g_shaderProgram, *g_camera, statuaMatrix6);*/
+            // Estatua Hans Christian Andersen
+            glm::mat4 statuaMatrix6 = ComputeTransform(glm::vec3(6.836f, -3.422f, 17.550f), glm::vec3(-2.0f, 78.0f, -179.3f), 0.15f);
+            g_statua_6->Draw(*g_shaderProgram, *g_camera, statuaMatrix6);
 
             // Estatua Miguel de Cervantes
             glm::mat4 statueMatrix7 = ComputeTransform(glm::vec3(-9.2f, -1.685f, 13.341f), glm::vec3(-161.053f, 0.0f, 83.448f), 1.0f);
@@ -291,13 +290,12 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
 
         // Ventana de información de depuración
         // Debug info window
+        ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
         ImGui::Begin("Debug Info");
         ImGui::Text("Estado: PLAYING");
         ImGui::Text("Pos: (%.2f, %.2f, %.2f)", g_camera->Position.x, g_camera->Position.y, g_camera->Position.z);
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         ImGui::End();
-
-        
         break;
     }
 }

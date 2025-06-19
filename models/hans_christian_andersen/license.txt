@@ -1,0 +1,11 @@
+Model Information:
+* title:	Hans Christian Andersen
+* source:	https://sketchfab.com/3d-models/hans-christian-andersen-74f1cba24216401b9d843111ebae3737
+* author:	Rigsters (https://sketchfab.com/rigsters)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Hans Christian Andersen" (https://sketchfab.com/3d-models/hans-christian-andersen-74f1cba24216401b9d843111ebae3737) by Rigsters (https://sketchfab.com/rigsters) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

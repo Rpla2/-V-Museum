@@ -14,9 +14,11 @@ std::vector<AABB> benchAABBs = {
     { glm::vec3(7.0f, 0.11f,  0.0f), glm::vec3(8.0f, 1.0f, 4.0f) },
     { glm::vec3(-1.7f, 0.11f,  1.0f), glm::vec3(1.7f, 1.0f,  3.0f) },
     { glm::vec3(-2.0f, 0.11f,  18.6f), glm::vec3(2.0f, 1.0f,  20.0f) },
-    { glm::vec3(-8.2f, 0.11f, -15.6f), glm::vec3(-4.6f, 1.0f, -14.0f) },
-    { glm::vec3(-1.7f, 0.11f, -15.6f), glm::vec3(1.7f, 1.0f, -14.0f) },
-    { glm::vec3(4.7f, 0.11f, -15.6f), glm::vec3(8.2f, 1.0f, -14.0f) },
+    //zona de bancas escritores
+    { glm::vec3(-8.2f, 0.11f, -15.35f), glm::vec3(-4.6f, 1.0f, -14.2f) },
+    { glm::vec3(-1.7f, 0.11f, -15.34f), glm::vec3(1.7f, 1.0f, -14.2f) },
+    { glm::vec3(4.7f, 0.11f, -15.34f), glm::vec3(8.2f, 1.0f, -14.2f) },
+
     { glm::vec3(-8.0f, 0.11f, -8.6f), glm::vec3(8.0f, 6.0f, -7.4f) },
     { glm::vec3(-4.0f, 0.11f, 11.0f), glm::vec3(4.0f, 6.0f, 12.4f) },
     { glm::vec3(-4.0f, 5.0f, 12.0f), glm::vec3(4.0f, 6.0f, 19.9f) },
@@ -28,7 +30,8 @@ std::vector<AABB> statueAABBs = {
     { glm::vec3(-1.2f, 0.0f, 5.0f), glm::vec3(1.5f, 5.0f, 11.0f) },
     { glm::vec3(-1.2f, 0.0f, 12.4f), glm::vec3(1.5f, 5.0f, 13.5f) },
     { glm::vec3(-1.7f, 0.11f, -19.8f), glm::vec3(1.7f, 5.0f, -17.0f) },
-    { glm::vec3(8.5f, 0.11f, -19.8f), glm::vec3(11.8f, 5.0f, -17.0f) }
+    { glm::vec3(8.5f, 0.11f, -19.8f), glm::vec3(11.8f, 5.0f, -17.0f) },
+    { glm::vec3(-11.8f, -0.11f, -19.8f), glm::vec3(-8.15f, 8.0f, -16.2f) } // Hans Christian Andersen
 };
 
 // Dibuja un AABB como líneas con color
