@@ -12,6 +12,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include <stb/stb_image.h>
 
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
@@ -110,6 +111,18 @@ int main() {
         glfwTerminate();
         return -1;
     }
+
+    // Load and set the icon / Cargar y establecer el icono
+    GLFWimage icon;
+    icon.pixels = stbi_load("models/icon/museum_roman_icon.png", &icon.width, &icon.height, nullptr, 4);
+    if (icon.pixels) {
+        glfwSetWindowIcon(window, 1, &icon);
+        stbi_image_free(icon.pixels);
+    }
+    else {
+        std::cerr << "Failed to load window icon\n";
+    }
+
     glfwMakeContextCurrent(window);
     // Deshabilitar cursor para free look continuo
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -292,13 +305,13 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
 
         // Ventana de información de depuración
         // Debug info window
-       /* ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
         ImGui::Begin("Debug Info");
         ImGui::Text("Estado: PLAYING");
         ImGui::Text("Pos: (%.2f, %.2f, %.2f)", g_camera->Position.x, g_camera->Position.y, g_camera->Position.z);
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         ImGui::End();
-        break;*/
+        break;
     }
 }
 
