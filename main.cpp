@@ -21,6 +21,10 @@
 #include "Model.h"
 #include "Camera.h"
 #include "shaderClass.h"
+#include "AABB.h"
+#include "AABBDefs.h"
+
+extern void DrawAABB(const AABB& box, const glm::mat4& view, const glm::mat4& proj, const glm::vec3& color, Shader& shader);
 
 // Objetos globales de la escena 3D
 // Global objects for the 3D scene
@@ -34,8 +38,8 @@ Model* g_statua_2 = nullptr;
 Model* g_statua_3 = nullptr;
 Model* g_statua_4 = nullptr;
 Model* g_statua_5 = nullptr;
-Model* g_statua_6 = nullptr;
-//Model* g_statua_7 = nullptr;
+//Model* g_statua_6 = nullptr;
+Model* g_statua_7 = nullptr;
 
 struct ObraInfo {
     std::string nombre;
@@ -64,6 +68,28 @@ void MostrarInfoObraCercana(const glm::vec3& camPos, GLFWwindow* window);
 static glm::mat4 ComputeTransform(const glm::vec3& translate, const glm::vec3& rotDeg, float scale);
 void Init3DScene(int screenWidth, int screenHeight);
 void Cleanup3DScene();
+
+// Función para comprobar colisión entre un punto y un AABB
+bool PointInAABB(const glm::vec3& point, const AABB& box) {
+    return (point.x >= box.min.x && point.x <= box.max.x &&
+            point.y >= box.min.y && point.y <= box.max.y &&
+            point.z >= box.min.z && point.z <= box.max.z);
+}
+
+// Función para comprobar colisión de la cámara con todos los AABB
+bool CameraCollides(const glm::vec3& camPos) {
+    // Galería
+    if (!PointInAABB(camPos, gallery01AABB)) return true; // Si está fuera de la galería, colisiona
+    // Bancas
+    for (const auto& bench : benchAABBs) {
+        if (PointInAABB(camPos, bench)) return true;
+    }
+    // Estatuas
+    for (const auto& statue : statueAABBs) {
+        if (PointInAABB(camPos, statue)) return true;
+    }
+    return false;
+}
 
 // Función principal de la aplicación
 // Main application function
@@ -145,8 +171,8 @@ void Init3DScene(int screenWidth, int screenHeight)
         g_statua_3 = new Model("models/napoleon/scene.gltf");
         g_statua_4 = new Model("models/julio_cesar/scene.gltf");
         g_statua_5 = new Model("models/william_shakespeare_statue/scene.gltf");
-        g_statua_6 = new Model("models/alexander_puschkin/scene.gltf");
-		//g_statua_7 = new Model("models/busto_de_cervantes/scene.gltf");
+        //g_statua_6 = new Model("models/alexander_puschkin/scene.gltf");
+		g_statua_7 = new Model("models/busto_de_cervantes/scene.gltf");
 		std::cout << "MODELOS CARGADOS CORRECTAMENTE" << std::endl;
     }
     catch (const std::exception& e) {
@@ -164,8 +190,8 @@ void Cleanup3DScene()
     delete g_statua_3;
     delete g_statua_4;
     delete g_statua_5;
-	delete g_statua_6;
-	//delete g_statua_7;
+	//delete g_statua_6;
+	delete g_statua_7;
    
     delete g_camera;
     g_shaderProgram->Delete();
@@ -243,13 +269,25 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
             g_statua_5->Draw(*g_shaderProgram, *g_camera, statuaMatrix5);
 
             // Estatua Alexander Pushkin
-            glm::mat4 statuaMatrix6 = ComputeTransform(glm::vec3(9.0f, 0.0f, 18.6f), glm::vec3(0.0f, 180.0f, -90.0f), 0.19f);
-            g_statua_6->Draw(*g_shaderProgram, *g_camera, statuaMatrix6);
+            /*glm::mat4 statuaMatrix6 = ComputeTransform(glm::vec3(9.0f, 0.0f, 18.6f), glm::vec3(0.0f, 180.0f, -90.0f), 0.19f);
+            g_statua_6->Draw(*g_shaderProgram, *g_camera, statuaMatrix6);*/
 
             // Estatua Miguel de Cervantes
-            /*glm::mat4 statueMatrix7 = ComputeTransform(glm::vec3(-9.2f, -1.685f, 13.341f), glm::vec3(-161.053f, 0.0f, 83.448f), 1.0f);
-            g_statua_7->Draw(*g_shaderProgram, *g_camera, statueMatrix7);*/
+            glm::mat4 statueMatrix7 = ComputeTransform(glm::vec3(-9.2f, -1.685f, 13.341f), glm::vec3(-161.053f, 0.0f, 83.448f), 1.0f);
+            g_statua_7->Draw(*g_shaderProgram, *g_camera, statueMatrix7);
         }
+
+        // --- Renderizado de AABB para debug visual ---
+        // Obtener matrices de cámara
+        glm::mat4 view = glm::lookAt(g_camera->Position, g_camera->Position + g_camera->Orientation, g_camera->Up);
+        glm::mat4 proj = glm::perspective(glm::radians(65.0f), (float)g_camera->width / g_camera->height, 0.1f, 100.0f);
+        static Shader debugShader("debug_line.vert", "debug_line.frag");
+        // Gallery (rojo)
+        DrawAABB(gallery01AABB, view, proj, glm::vec3(1,0,0), debugShader);
+        // Bancas (verde)
+        for(const auto& b : benchAABBs) DrawAABB(b, view, proj, glm::vec3(0,1,0), debugShader);
+        // Estatuas (morado)
+        for(const auto& s : statueAABBs) DrawAABB(s, view, proj, glm::vec3(0.5,0,0.5), debugShader);
 
         // Ventana de información de depuración
         // Debug info window
@@ -259,9 +297,7 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
         ImGui::End();
 
-        break;
-        case AppState::EXIT:
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
+        
         break;
     }
 }

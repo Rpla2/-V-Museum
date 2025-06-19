@@ -11,6 +11,9 @@
 
 #include "Camera.h"
 #include "imgui.h"
+#include "AABBDefs.h"
+
+extern bool CameraCollides(const glm::vec3& camPos);
 
 Camera::Camera(int width, int height, glm::vec3 position)
 {
@@ -47,18 +50,33 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
 	if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
 		currentSpeed *= 2.0f;
 
+	glm::vec3 move(0.0f);
 	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-		Position += currentSpeed * deltaTime * Orientation;
+		move += Orientation;
 	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-		Position -= currentSpeed * deltaTime * Orientation;
+		move -= Orientation;
 	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-		Position -= currentSpeed * deltaTime * glm::normalize(glm::cross(Orientation, Up));
+		move -= glm::normalize(glm::cross(Orientation, Up));
 	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-		Position += currentSpeed * deltaTime * glm::normalize(glm::cross(Orientation, Up));
+		move += glm::normalize(glm::cross(Orientation, Up));
 	if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-		Position += currentSpeed * deltaTime * Up;
+		move += Up;
 	if (glfwGetKey(window, GLFW_KEY_LEFT_CONTROL) == GLFW_PRESS)
-		Position -= currentSpeed * deltaTime * Up;
+		move -= Up;
+
+	if (glm::length(move) > 0.0f)
+	{
+		move = glm::normalize(move) * currentSpeed * deltaTime;
+		glm::vec3 tryPos = Position + glm::vec3(move.x, 0, 0);
+		if (!CameraCollides(tryPos))
+			Position.x += move.x;
+		tryPos = Position + glm::vec3(0, move.y, 0);
+		if (!CameraCollides(tryPos))
+			Position.y += move.y;
+		tryPos = Position + glm::vec3(0, 0, move.z);
+		if (!CameraCollides(tryPos))
+			Position.z += move.z;
+	}
 
 	if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS)
 	{
