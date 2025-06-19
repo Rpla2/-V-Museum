@@ -105,9 +105,10 @@ void RenderMainMenu(AppState& currentState, GLFWwindow* window, AppState& nextSt
 // Renders the instructions window and allows returning to the main menu.
 void RenderInstructions(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading) {
     ImGuiIO& io = ImGui::GetIO();
-    ImVec2 center = ImVec2(io.DisplaySize.x * 0.5f, io.DisplaySize.y * 0.5f);
+    ImVec2 displaySize = io.DisplaySize;
+    ImVec2 center = ImVec2(displaySize.x * 0.5f, displaySize.y * 0.5f);
     ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
-    ImGui::SetNextWindowSize(ImVec2(500, 350), ImGuiCond_Appearing);
+    ImGui::SetNextWindowSize(ImVec2(displaySize.x * 0.7f, displaySize.y * 0.8f), ImGuiCond_Appearing);
 
     ImGui::Begin("Instructions", NULL, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
     ImGui::PushFont(G_Font_Default);
@@ -117,9 +118,21 @@ void RenderInstructions(AppState& currentState, GLFWwindow* window, AppState& ne
     ImGui::TextWrapped("Welcome to the Virtual Museum");
     ImGui::Separator();
     ImGui::Dummy(ImVec2(0.0f, 10.0f));
+    // Explicación general del proyecto
+    ImGui::TextWrapped(
+        "V-Museum is an interactive 3D experience that allows you to explore a virtual gallery featuring some of the most iconic sculptures in history. "
+        "Move freely through the museum, approach each artwork, and press the 'L' key to view detailed information about each piece, including its name, author, year, and a historical description. "
+        "The environment includes realistic lighting, collision detection to prevent walking through objects, and a user-friendly interface. "
+        "You can return to the main menu at any time by pressing the ESC key."
+    );
+
+    ImGui::Dummy(ImVec2(0.0f, 10.0f));
+    ImGui::Separator();
+    ImGui::Dummy(ImVec2(0.0f, 10.0f));
     ImGui::TextWrapped("Navigation Controls:");
     ImGui::BulletText("Use the W, A, S, D keys to move through the rooms.");
     ImGui::BulletText("Move the mouse to orient your view.");
+    ImGui::BulletText("Press the L key near a sculpture to see its information.");
     ImGui::BulletText("Press the ESC key at any time to return to the main menu.");
     ImGui::Dummy(ImVec2(0.0f, 20.0f));
     ImGui::Separator();
@@ -127,11 +140,15 @@ void RenderInstructions(AppState& currentState, GLFWwindow* window, AppState& ne
 
     // Botón para volver al menú principal
     // Button to return to main menu
-    if (ImGui::Button("Return to Menu", ImVec2(-1, 40))) {
+    ImGui::Dummy(ImVec2(0.0f, displaySize.y * 0.08f)); // Espacio extra antes del botón
+    float buttonWidth = 180.0f;
+    float buttonHeight = 32.0f;
+    float centerX = (ImGui::GetWindowSize().x - buttonWidth) * 0.5f;
+    ImGui::SetCursorPosX(centerX);
+    if (ImGui::Button("Return to Menu", ImVec2(buttonWidth, buttonHeight))) {
         nextStateAfterLoading = AppState::MENU;
         currentState = AppState::LOADING;
     }
-
     ImGui::PopFont();
     ImGui::End();
 }

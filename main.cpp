@@ -1,4 +1,5 @@
-﻿/*
+﻿#pragma execution_character_set("utf-8")
+/*
     main.cpp
     --------------------------------------------------------------------------------
     Main entry point for the V-Museum application.
@@ -43,22 +44,67 @@ Model* g_statua_6 = nullptr;
 Model* g_statua_7 = nullptr;
 
 struct ObraInfo {
-    std::string nombre;
-    std::string autor;
-    std::string año;
-    std::string descripcion;
+    std::string Name;
+    std::string Author;
+    std::string Year;
+    std::string Description;
     glm::vec3 posicion;
     float radioInteraccion;
 };
 
 
 std::vector<ObraInfo> obras = {
-    {"Venus de Milo", "Alexandros de Antioquía", "Siglo II a.C.", "Una de las esculturas más famosas de la antigua Grecia, expuesta en el Museo del Louvre.", 
-    glm::vec3(3.3f, 3.34f, -3.88f), 2.0f},
-    {"Discóbolo de Mirón", "Mirón", "Siglo V a.C.", "Escultura clásica que representa a un atleta lanzando un disco.", 
-    glm::vec3(-2.45f, 3.34f, -4.0f), 2.0f},
-    
+    {
+        "Venus de Milo (Greek: Aphrodite of Milos).",
+        "Alexandros of Antioch.\nThe authorship is attributed to him, although there is no absolute certainty. This attribution is based on an inscription found on the plinth (the base) of the statue, which was unfortunately lost shortly after its discovery. For a long time, it was mistakenly attributed to Praxiteles to increase its value, associating it with the Classical period.",
+        "Hellenistic Period. It is estimated to have been sculpted between 130 BC and 100 BC.",
+        "One of the most famous sculptures of Ancient Greece and an icon of classical feminine beauty.\n\nRepresentation: Depicts Aphrodite (Venus to the Romans), the Greek goddess of love, beauty, and fertility.\n\nPhysical Characteristics: Sculpted in Parian marble and measures approximately 203 cm in height. The goddess is depicted semi-nude, with a drape or himation covering her legs and hips, leaving the torso exposed in a gesture of great sensuality and naturalism.\n\nThe Lost Arms: Its most distinctive feature is the absence of its arms, which were lost in antiquity and have never been found. This mystery has generated endless speculation about its original posture. Some theories suggest she may have held an apple (alluding to the Judgment of Paris), a mirror, or was leaning on a pillar.\n\nPosture and Style: The statue presents a subtle contrapposto, a technique that gives it naturalness and dynamism. The body's weight rests on one leg, creating an elegant S-shaped curve in her figure. Its style combines elements of classical idealism (the serenity and impassiveness of the face) with the drama and complexity of the Hellenistic period (the twist of the body and the texture of the garments).\n\nDiscovery: Discovered in 1820 by a farmer named Yorgos Kentrotas on the Greek island of Milos (or Milo), from which it gets its name. Shortly after, it was acquired by France and today is one of the star pieces of the Louvre Museum in Paris.",
+        glm::vec3(3.3f, 3.34f, -3.88f), 2.0f
+    },
+    {
+        "Discobolus of Myron (El Discóbolo de Mirón)",
+        "Myron of Eleutherae.\nHe was one of the most important sculptors of the Greek Classical period, known for his ability to capture movement and anatomical realism.",
+        "The original bronze work was created around 450 BC (Greek Classical Period).\nIt is important to note that the original bronze has been lost. All the statues we know today are Roman marble copies made centuries later.",
+        "One of the masterpieces of Greek art, celebrated for its depiction of movement and athletic tension.\n\nRepresentation: The sculpture shows a nude athlete at the precise moment of maximum concentration and torsion, just before throwing the discus. It is not a portrait of a specific athlete, but rather the representation of the athletic ideal.\n\nInnovation and Style: Its great innovation was to capture a fleeting instant of violent action, freezing the movement at its peak. The athlete's body is composed in a series of arcs and curves that convey enormous potential energy, like a spring about to be released. This concept of balance in motion is known in Greek as rhythmos.\n\nContrast and Composition: Despite the incredible tension of the body, the athlete's face remains calm and expressionless, a typical feature of the Severe Style (the transition between the Archaic and Classical periods). This contrast highlights the Greek ideal of self-control and mental discipline even during maximum physical effort.\n\nRoman Copies: The Roman marble copies, being more fragile than the original bronze, often required structural support, such as a tree trunk, which did not exist in Myron's work. The most famous and considered the most faithful copy is the Discobolus Lancellotti, located in the National Roman Museum in Rome. Another well-known version is the Townley Discobolus, exhibited in the British Museum in London.",
+        glm::vec3(-2.45f, 3.0f, -4.0f), 2.0f
+    },
+    {
+        "Napoleon as Caesar (Napoléon en empereur romain)",
+        "Charles Émile Seurre.",
+        "1833.",
+        "This imposing bronze statue represents Napoleon Bonaparte idealized in the style of a Roman emperor, seeking to establish a symbolic link between his empire and the greatness of Ancient Rome. He wears a toga and a laurel crown, symbols of victory and power. In his right hand, he holds the imperial orb (a globe with a cross), and in his left, a scepter. The work was originally created to crown the Vendôme Column, but today it stands in the Cour d'Honneur of the Hôtel des Invalides in Paris, where Napoleon's tomb is also located.",
+        glm::vec3(-0.20, 3.0, 3.0), 2.0f
+    },
+    {
+        "Statue of Julius Caesar",
+        "Anonymous. It is a Roman work from the Imperial period.",
+        "It is believed to be a posthumous copy from the 1st or early 2nd century AD.",
+        "This marble statue is one of the best-known representations of Julius Caesar. It is important to note that it is not a portrait made during his lifetime, but a later creation that idealizes his figure. He is depicted as a military leader and statesman (imperator). He wears a muscular cuirass (armor) under a paludamentum (the general's cloak). His contrapposto stance and raised arm in an oratorical gesture (adlocutio) convey authority, charisma, and power. Although his face is an idealized reconstruction, it is based on portraits from coins minted in his era.",
+        glm::vec3(0.04, 3.0, 15.21), 2.0f
+    },
+    {
+        "Monument to William Shakespeare (in Poets' Corner, Westminster Abbey)",
+        "Designed by William Kent and sculpted by Peter Scheemakers.",
+        "1740.",
+        "Located in the most sacred place of English literature, Poets' Corner in Westminster Abbey, this marble monument presents Shakespeare life-size. He is depicted standing, dressed in the clothing of his era, and casually leaning on a pedestal of books symbolizing his work. With his right hand, he points to a scroll containing a quote from his play The Tempest: \"The cloud-capp'd towers, the gorgeous palaces...\". The sculpture consolidates him not only as a literary genius but as a national icon of Britain.",
+        glm::vec3(0.18, 3.0,-16.12), 2.0f
+    },
+    {
+        "Statue of Hans Christian Andersen",
+        "August Saabye.",
+        "1880.",
+        "This famous bronze statue is located in the King's Garden (Kongens Have) in Copenhagen, Denmark. It depicts the celebrated fairy tale author seated, with a book in his hand, in a pose suggesting he is about to tell one of his stories. The sculpture perfectly captures his image as a beloved storyteller for children and adults. Interestingly, the most famous statue inspired by his work is not this one, but The Little Mermaid (1913), also in Copenhagen, which has become the city's symbol.",
+        glm::vec3(-10.46, 3.0, -13.91), 2.0f
+    },
+    {
+        "Monument to Miguel de Cervantes",
+        "The main sculptor was Lorenzo Coullaut Valera and the architect, Rafael Martínez Zapatero.",
+        "Mainly built between 1925 and 1930, with later additions.",
+        "More than a single statue, it is a grand monumental complex in Plaza de España, Madrid. The main figure is a stone statue of Cervantes, seated and holding a quill, thoughtfully observing his work from atop a pedestal. However, the most famous and photographed part of the monument are the bronze statues of his most universal characters: Don Quixote riding his horse Rocinante and Sancho Panza on his loyal donkey. The complex also includes representations of Dulcinea del Toboso and a globe as a symbol of the universality of the Spanish language.",
+        glm::vec3(10.02, 3.0, -13.84), 2.0f
+    }
 };
+
 
 glm::vec4 g_lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 glm::vec3 g_lightPos = glm::vec3(0.5f, 2.0f, 2.0f);
@@ -109,6 +155,16 @@ int main() {
     if (!window) {
         std::cerr << "Failed to create GLFW window\n";
         glfwTerminate();
+        return -1;
+    }
+    glfwMakeContextCurrent(window);
+    // Deshabilitar cursor para free look continuo
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+    // Inicialización de GLAD
+    // GLAD initialization
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
+        std::cerr << "Failed to initialize GLAD" << std::endl;
         return -1;
     }
 
@@ -305,12 +361,12 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
 
         // Ventana de información de depuración
         // Debug info window
-        ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
+       /* ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
         ImGui::Begin("Debug Info");
         ImGui::Text("Estado: PLAYING");
         ImGui::Text("Pos: (%.2f, %.2f, %.2f)", g_camera->Position.x, g_camera->Position.y, g_camera->Position.z);
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-        ImGui::End();
+        ImGui::End();*/
         break;
     }
 }
@@ -321,18 +377,39 @@ void MostrarInfoObraCercana(const glm::vec3& camPos, GLFWwindow* window) {
     for (const auto& obra : obras) {
         float distancia = glm::distance(camPos, obra.posicion);
 
-        ImVec2 ventanaSize = ImVec2(350, 220);
-        ImVec2 ventanaPos = ImVec2(20, 40);  
+        ImVec2 ventanaSize = ImVec2(420, 480);
+        ImVec2 ventanaPos = ImVec2(20, 40);
 
         ImGui::SetNextWindowSize(ventanaSize, ImGuiCond_Always);
         ImGui::SetNextWindowPos(ventanaPos, ImGuiCond_Always);
-        
+
         if (distancia < obra.radioInteraccion && glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
-            ImGui::Begin("Información de la Obra", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
-            ImGui::Text("Nombre: %s", obra.nombre.c_str());
-            ImGui::Text("Autor: %s", obra.autor.c_str());
-            ImGui::Text("Año: %s", obra.año.c_str());
-            ImGui::TextWrapped("%s", obra.descripcion.c_str());
+            ImGui::Begin("Work Information", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
+
+            ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 255));
+            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
+            ImGui::Text("Name:");
+            ImGui::PopFont();
+            ImGui::TextWrapped("%s", obra.Name.c_str());
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
+            ImGui::Text("Author:");
+            ImGui::PopFont();
+            ImGui::TextWrapped("%s", obra.Author.c_str());
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
+            ImGui::Text("Year:");
+            ImGui::PopFont();
+            ImGui::TextWrapped("%s", obra.Year.c_str());
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
+            ImGui::Text("Description:");
+            ImGui::PopFont();
+            ImGui::TextWrapped("%s", obra.Description.c_str());
+            ImGui::PopStyleColor();
             ImGui::End();
             break;
         }
