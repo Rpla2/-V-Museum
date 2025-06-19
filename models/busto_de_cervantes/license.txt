@@ -1,0 +1,11 @@
+Model Information:
+* title:	Busto de Cervantes - Archivo de Indias | SEVILLA
+* source:	https://sketchfab.com/3d-models/busto-de-cervantes-archivo-de-indias-sevilla-421dd707beff4209bdf8ab4260555f37
+* author:	Arqueomodel3D (https://sketchfab.com/juanbrualla)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Busto de Cervantes - Archivo de Indias | SEVILLA" (https://sketchfab.com/3d-models/busto-de-cervantes-archivo-de-indias-sevilla-421dd707beff4209bdf8ab4260555f37) by Arqueomodel3D (https://sketchfab.com/juanbrualla) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

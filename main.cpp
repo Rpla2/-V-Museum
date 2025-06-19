@@ -34,6 +34,8 @@ Model* g_statua_2 = nullptr;
 Model* g_statua_3 = nullptr;
 Model* g_statua_4 = nullptr;
 Model* g_statua_5 = nullptr;
+Model* g_statua_6 = nullptr;
+//Model* g_statua_7 = nullptr;
 
 struct ObraInfo {
     std::string nombre;
@@ -53,14 +55,13 @@ std::vector<ObraInfo> obras = {
     
 };
 
-
 glm::vec4 g_lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 glm::vec3 g_lightPos = glm::vec3(0.5f, 2.0f, 2.0f);
-
 
 void SetClearColor(AppState state);
 void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading, float deltaTime);
 void MostrarInfoObraCercana(const glm::vec3& camPos, GLFWwindow* window);
+static glm::mat4 ComputeTransform(const glm::vec3& translate, const glm::vec3& rotDeg, float scale);
 void Init3DScene(int screenWidth, int screenHeight);
 void Cleanup3DScene();
 
@@ -77,7 +78,7 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_MAXIMIZED, GLFW_TRUE);
 
-    GLFWwindow* window = glfwCreateWindow(1280, 720, "V-Museum", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(800, 800, "V-Museum", nullptr, nullptr);
     if (!window) {
         std::cerr << "Failed to create GLFW window\n";
         glfwTerminate();
@@ -135,7 +136,7 @@ void Init3DScene(int screenWidth, int screenHeight)
     glUniform4f(glGetUniformLocation(g_shaderProgram->ID, "lightColor"), g_lightColor.x, g_lightColor.y, g_lightColor.z, g_lightColor.w);
     glUniform3f(glGetUniformLocation(g_shaderProgram->ID, "lightPos"), g_lightPos.x, g_lightPos.y, g_lightPos.z);
 
-    g_camera = new Camera(screenWidth, screenHeight, glm::vec3(7.89f, 1.45f, -18.07f));
+    g_camera = new Camera(screenWidth, screenHeight, glm::vec3(0.0f, 3.45f, 0.0f));
 
     try {
         g_model = new Model("models/gallery_01/scene.gltf");
@@ -144,7 +145,9 @@ void Init3DScene(int screenWidth, int screenHeight)
         g_statua_3 = new Model("models/napoleon/scene.gltf");
         g_statua_4 = new Model("models/julio_cesar/scene.gltf");
         g_statua_5 = new Model("models/william_shakespeare_statue/scene.gltf");
-     
+        g_statua_6 = new Model("models/alexander_puschkin/scene.gltf");
+		//g_statua_7 = new Model("models/busto_de_cervantes/scene.gltf");
+		std::cout << "MODELOS CARGADOS CORRECTAMENTE" << std::endl;
     }
     catch (const std::exception& e) {
         std::cerr << "ERROR AL CARGAR EL MODELO: " << e.what() << std::endl;
@@ -161,6 +164,8 @@ void Cleanup3DScene()
     delete g_statua_3;
     delete g_statua_4;
     delete g_statua_5;
+	delete g_statua_6;
+	//delete g_statua_7;
    
     delete g_camera;
     g_shaderProgram->Delete();
@@ -183,7 +188,7 @@ void SetClearColor(AppState state) {
 // Renders the current application state (menu, instructions, loading, playing, exit)
 void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading, float deltaTime) {
 
-    currentState = AppState::PLAYING;
+    //currentState = AppState::PLAYING;
     switch (currentState) {
     case AppState::MENU:
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -213,56 +218,37 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
 
         if (g_model && g_shaderProgram)
         {
-			//edificio
-            glm::mat4 modelMatrix = glm::mat4(1.0f);
-            modelMatrix = glm::rotate(modelMatrix, glm::radians(-180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            modelMatrix = glm::scale(modelMatrix, glm::vec3(2.0f));
+            // Edificio principal
+            glm::mat4 modelMatrix = ComputeTransform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 180.0f), 2.0f);
             g_model->Draw(*g_shaderProgram, *g_camera, modelMatrix);
 
-			//estatua venus_de_milo
-			glm::mat4 statueMatrix1 = glm::mat4(1.0f);
-			statueMatrix1 = glm::translate(statueMatrix1, glm::vec3(-3.0f, 0.0f, 7.6f));
-            statueMatrix1 = glm::scale(statueMatrix1, glm::vec3(20.0f));
-			statueMatrix1 = glm::rotate(statueMatrix1, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            statueMatrix1 = glm::rotate(statueMatrix1, glm::radians(-90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-			g_statua_1->Draw(*g_shaderProgram, *g_camera, statueMatrix1);
+            // Estatua Venus de Milo
+            glm::mat4 statuaMatrix1 = ComputeTransform(glm::vec3(-3.0f, 0.0f, 7.6f), glm::vec3(0.0f, 90.0f, 180.0f), 20.0f);
+            g_statua_1->Draw(*g_shaderProgram, *g_camera, statuaMatrix1);
 
-			// estatua discobolo
-            glm::mat4 statuaMatrix2 = glm::mat4(1.0f);
-			statuaMatrix2 = glm::translate(statuaMatrix2, glm::vec3(3.5f, 0.0f, 6.6f));
-			statuaMatrix2 = glm::rotate(statuaMatrix2, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-			statuaMatrix2 = glm::rotate(statuaMatrix2, glm::radians(-180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-			statuaMatrix2 = glm::scale(statuaMatrix2, glm::vec3(2.5f));
-			g_statua_2->Draw(*g_shaderProgram, *g_camera, statuaMatrix2);
+            // Estatua Discóbolo de Mirón
+            glm::mat4 statuaMatrix2 = ComputeTransform(glm::vec3(3.5f, 0.0f, 6.6f), glm::vec3(180.0f, 0.0f, 90.0f), 2.5f);
+            g_statua_2->Draw(*g_shaderProgram, *g_camera, statuaMatrix2);
 
-			// Napoleon
-            glm::mat4 statuaMatrix3 = glm::mat4(0.5f);
-            statuaMatrix3 = glm::translate(statuaMatrix3, glm::vec3(0.0f, 0.0f, -17.6f));
-            statuaMatrix3 = glm::rotate(statuaMatrix3, glm::radians(-90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            statuaMatrix3 = glm::rotate(statuaMatrix3, glm::radians(-360.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-            statuaMatrix3 = glm::scale(statuaMatrix3, glm::vec3(0.1f));
+            // Estatua Napoleón
+            glm::mat4 statuaMatrix3 = ComputeTransform(glm::vec3(0.0f, 0.0f, -8.4f), glm::vec3(360.0f, 0.0f, -90.0f), 0.06f);
             g_statua_3->Draw(*g_shaderProgram, *g_camera, statuaMatrix3);
 
-            // Cesar
-            glm::mat4 statuaMatrix4 = glm::mat4(1.0f);
-            statuaMatrix4 = glm::translate(statuaMatrix4, glm::vec3(0.0f, -2.5f, -13.6f));
-            statuaMatrix4 = glm::rotate(statuaMatrix4, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            statuaMatrix4 = glm::rotate(statuaMatrix4, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            statuaMatrix4 = glm::scale(statuaMatrix4, glm::vec3(2.5f));
+            // Estatua Julio César
+            glm::mat4 statuaMatrix4 = ComputeTransform(glm::vec3(0.0f, -2.5f, -12.8f), glm::vec3(0.0f, -90.0f, 180.0f), 2.5f);
             g_statua_4->Draw(*g_shaderProgram, *g_camera, statuaMatrix4);
-           
-            // william_shakespeare_statue
-            glm::mat4 statuaMatrix5 = glm::mat4(1.0f);
-            statuaMatrix5 = glm::translate(statuaMatrix5, glm::vec3(0.0f, 0.0f, 18.6f));
-            statuaMatrix5 = glm::rotate(statuaMatrix5, glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-            statuaMatrix5 = glm::rotate(statuaMatrix5, glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-            statuaMatrix5 = glm::scale(statuaMatrix5, glm::vec3(2.05f));
+
+            // Estatua William Shakespeare
+            glm::mat4 statuaMatrix5 = ComputeTransform(glm::vec3(0.0f, 0.0f, 18.4f), glm::vec3(0.0f, -90.0f, 180.0f), 3.05f);
             g_statua_5->Draw(*g_shaderProgram, *g_camera, statuaMatrix5);
 
-            
+            // Estatua Alexander Pushkin
+            glm::mat4 statuaMatrix6 = ComputeTransform(glm::vec3(9.0f, 0.0f, 18.6f), glm::vec3(0.0f, 180.0f, -90.0f), 0.19f);
+            g_statua_6->Draw(*g_shaderProgram, *g_camera, statuaMatrix6);
 
-
-
+            // Estatua Miguel de Cervantes
+            /*glm::mat4 statueMatrix7 = ComputeTransform(glm::vec3(-9.2f, -1.685f, 13.341f), glm::vec3(-161.053f, 0.0f, 83.448f), 1.0f);
+            g_statua_7->Draw(*g_shaderProgram, *g_camera, statueMatrix7);*/
         }
 
         // Ventana de información de depuración
@@ -302,4 +288,16 @@ void MostrarInfoObraCercana(const glm::vec3& camPos, GLFWwindow* window) {
             break;
         }
     }
+}
+
+// Función helper para transformaciones: traslación, rotación (grados en X,Y,Z) y escala
+// Helper function for transformations: translation, rotation (degrees in X,Y,Z), and scale
+static glm::mat4 ComputeTransform(const glm::vec3& translate, const glm::vec3& rotDeg, float scale) {
+    glm::mat4 m(1.0f);
+    m = glm::translate(m, translate);
+    m = glm::rotate(m, glm::radians(rotDeg.x), glm::vec3(1.0f, 0.0f, 0.0f));
+    m = glm::rotate(m, glm::radians(rotDeg.y), glm::vec3(0.0f, 1.0f, 0.0f));
+    m = glm::rotate(m, glm::radians(rotDeg.z), glm::vec3(0.0f, 0.0f, 1.0f));
+    m = glm::scale(m, glm::vec3(scale));
+    return m;
 }
