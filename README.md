@@ -1,23 +1,14 @@
 # V-Museum
-<!-- Project badges -->
+
 [![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
-[![Language: C++17](https://img.shields.io/badge/language-C%2B%2B17-blue.svg)]
-[![OpenGL 3.3](https://img.shields.io/badge/OpenGL-3.3-green.svg)]
+[![Language: C++17](https://img.shields.io/badge/language-C%2B%2B17-blue.svg)]()
+[![OpenGL 3.3](https://img.shields.io/badge/OpenGL-3.3-green.svg)]()
+
 ## Abstract
 
 V-Museum is an interactive 3D virtual museum simulation that allows users to explore renowned historical sculptures and monuments. Built with C++ and OpenGL, the application features real-time rendering, intuitive camera controls, relaxing ambient music, and an ImGui-powered interface for seamless interaction.
 
-## Keywords
-
-- Virtual Museum 3D
-- OpenGL
-- C++
-- ImGui
-- GLFW
-- GLAD
-- irrKlang
-- Real-time Rendering
-- Historical Monuments
+**Keywords:** Virtual Museum 3D, OpenGL, C++, ImGui, GLFW, GLAD, irrKlang, Real-time Rendering, Historical Monuments
 
 ## Technologies Used
 
@@ -68,6 +59,6 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 
 ## Authors
 
- - **Rpla2**
- - **yels0**
- - **FURIAZUL**
+- **Rpla2** (GitHub: [@Rpla2](https://github.com/Rpla2))
+- **yels0** (GitHub: [@yels0](https://github.com/yels0))
+- **FURIAZUL** (GitHub: [@FURIAZUL](https://github.com/FURIAZUL))
