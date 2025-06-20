@@ -71,12 +71,12 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>D:\Users\carba\source\repos\Proyecto_Vf\-V-Museum\-V-Museum\deps\include\irrKlang;D:\Users\carba\source\repos\Proyecto_Vf\-V-Museum\-V-Museum\deps\include\imgui\backends;D:\Users\carba\source\repos\Proyecto_Vf\-V-Museum\-V-Museum\deps\include\imgui;D:\Users\carba\source\repos\Proyecto_Vf\-V-Museum\-V-Museum\deps\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Users\carba\source\repos\Proyecto_Vf\-V-Museum\-V-Museum\deps\lib\Winx64-visualStudio;D:\Users\carba\source\repos\Proyecto_Vf\-V-Museum\-V-Museum\deps\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)deps\include\irrKlang;$(ProjectDir)deps\include\imgui\backends;$(ProjectDir)deps\include\imgui;$(ProjectDir)deps\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)deps\lib\Winx64-visualStudio;$(ProjectDir)deps\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>D:\Users\carba\source\repos\Proyecto_Vf\-V-Museum\-V-Museum\deps\include\irrKlang;D:\Users\carba\source\repos\Proyecto_Vf\-V-Museum\-V-Museum\deps\include\imgui\backends;D:\Users\carba\source\repos\Proyecto_Vf\-V-Museum\-V-Museum\deps\include\imgui;D:\Users\carba\source\repos\Proyecto_Vf\-V-Museum\-V-Museum\deps\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\Users\carba\source\repos\Proyecto_Vf\-V-Museum\-V-Museum\deps\lib\Winx64-visualStudio;D:\Users\carba\source\repos\Proyecto_Vf\-V-Museum\-V-Museum\deps\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(ProjectDir)deps\include\irrKlang;$(ProjectDir)deps\include\imgui\backends;$(ProjectDir)deps\include\imgui;$(ProjectDir)deps\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(ProjectDir)deps\lib\Winx64-visualStudio;$(ProjectDir)deps\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
