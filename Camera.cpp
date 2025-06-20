@@ -1,20 +1,23 @@
 /*
-    Camera.cpp
     --------------------------------------------------------------------------------
     Archivo de implementación de la clase Camera. Gestiona la navegación 3D, el movimiento, la orientación y la matriz de vista de la cámara en la aplicación.
     Proporciona métodos para actualizar la matriz de la cámara, manejar entradas del usuario y exportar la matriz para su uso en shaders.
-
-    --------------------------------------------------------------------------------
+    
     Implementation file for the Camera class. Manages 3D navigation, movement, orientation, and the camera view matrix in the application.
     Provides methods to update the camera matrix, handle user input, and export the matrix for use in shaders.
+	--------------------------------------------------------------------------------
 */
 
 #include "Camera.h"
 #include "imgui.h"
 #include "AABBDefs.h"
 
+// Referencia externa para la función de colisión de la cámara
+// External reference for camera collision function
 extern bool CameraCollides(const glm::vec3& camPos);
 
+// Constructor de la cámara
+// Camera constructor
 Camera::Camera(int width, int height, glm::vec3 position)
 {
 	Camera::width = width;
@@ -22,6 +25,8 @@ Camera::Camera(int width, int height, glm::vec3 position)
 	Position = position;
 }
 
+// Actualiza la matriz de la cámara
+// Updates the camera matrix
 void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
 {
 	glm::mat4 view = glm::lookAt(Position, Position + Orientation, Up);
@@ -29,14 +34,19 @@ void Camera::updateMatrix(float FOVdeg, float nearPlane, float farPlane)
 	cameraMatrix = projection * view;
 }
 
+// Exporta la matriz de la cámara al shader
+// Exports the camera matrix to the shader
 void Camera::Matrix(Shader& shader, const char* uniform)
 {
 	glUniformMatrix4fv(glGetUniformLocation(shader.ID, uniform), 1, GL_FALSE, glm::value_ptr(cameraMatrix));
 }
 
+// Maneja las entradas del usuario para mover la cámara
+// Handles user input to move the camera
 void Camera::Inputs(GLFWwindow* window, float deltaTime)
 {
-	// Deshabilita captura del ratón por ImGui para evitar parpadeo del cursor / Disable ImGui mouse capture to prevent cursor flickering
+	// Deshabilita captura del ratón por ImGui para evitar parpadeo del cursor
+	// Disable ImGui mouse capture to prevent cursor flickering
 #if 0
 	if (ImGui::GetIO().WantCaptureMouse || ImGui::GetIO().WantCaptureKeyboard)
 	{
@@ -81,7 +91,8 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
 			Position.z += move.z;
 	}
 
-	// Continuous free-look: disable and hide cursor / Free look continuo: bloquear y ocultar cursor
+	// Free look continuo: bloquear y ocultar cursor
+	// Continuous free-look: disable and hide cursor
 	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 	if (firstClick)
 	{
@@ -90,7 +101,8 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
 	}
 	double mouseX, mouseY;
 	glfwGetCursorPos(window, &mouseX, &mouseY);
-	// Calculate and apply rotation based on mouse movement / Calcular rotación según movimiento del ratón
+	// Calcular rotación según movimiento del ratón
+	// Calculate and apply rotation based on mouse movement
 	float rotX = sensitivity * (float)(mouseY - (height / 2)) / height;
 	float rotY = sensitivity * (float)(mouseX - (width / 2)) / width;
 	glm::vec3 newOrientation = glm::rotate(Orientation, glm::radians(-rotX), glm::normalize(glm::cross(Orientation, Up)));
@@ -99,7 +111,8 @@ void Camera::Inputs(GLFWwindow* window, float deltaTime)
 		Orientation = newOrientation;
 	}
 	Orientation = glm::rotate(Orientation, glm::radians(-rotY), Up);
-	// Recentrar cursor al centro de la ventana / Recenter cursor to window center
+	// Recentrar cursor al centro de la ventana
+	// Recenter cursor to window center
 	glfwSetCursorPos(window, (width / 2), (height / 2));
 }
 

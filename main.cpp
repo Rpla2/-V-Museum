@@ -1,19 +1,21 @@
 ﻿#pragma execution_character_set("utf-8")
 /*
-    main.cpp
     --------------------------------------------------------------------------------
     Main entry point for the V-Museum application.
     Handles window creation, OpenGL context setup, main loop, and scene management.
 
-    --------------------------------------------------------------------------------
     Punto de entrada principal para la aplicación V-Museum.
     Gestiona la creación de la ventana, configuración del contexto OpenGL, bucle principal y gestión de la escena.
+    --------------------------------------------------------------------------------
 */
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <stb/stb_image.h>
+#include <irrKlang.h>
+#include <vector>
+#include <string>
 
 #include "imgui.h"
 #include "backends/imgui_impl_glfw.h"
@@ -26,12 +28,24 @@
 #include "AABB.h"
 #include "AABBDefs.h"
 
+using namespace irrklang;
+
 extern void DrawAABB(const AABB& box, const glm::mat4& view, const glm::mat4& proj, const glm::vec3& color, Shader& shader);
 
 // Objetos globales de la escena 3D
 // Global objects for the 3D scene
 Camera* g_camera = nullptr;
 Shader* g_shaderProgram = nullptr;
+// Engine de sonido global
+ISoundEngine* g_soundEngine = nullptr;
+ISound* g_music = nullptr; // Referencia a la música ambiental
+std::vector<std::string> g_playlist = {
+    "Music/Fly_Me_to_the_Moon.mp3",
+    "Music/Jazz_Relajante.mp3",
+    "Music/Morning_Café_Jazz.mp3",
+    
+};
+int g_currentTrack = 0;
 
 // Modelos 3D
 Model* g_model = nullptr;
@@ -69,7 +83,7 @@ std::vector<ObraInfo> obras = {
         glm::vec3(-2.45f, 3.0f, -4.0f), 2.0f
     },
     {
-        "Napoleon as Caesar (Napoléon en empereur romain)",
+        "Napoleon",
         "Charles Émile Seurre.",
         "1833.",
         "This imposing bronze statue represents Napoleon Bonaparte idealized in the style of a Roman emperor, seeking to establish a symbolic link between his empire and the greatness of Ancient Rome. He wears a toga and a laurel crown, symbols of victory and power. In his right hand, he holds the imperial orb (a globe with a cross), and in his left, a scepter. The work was originally created to crown the Vendôme Column, but today it stands in the Cour d'Honneur of the Hôtel des Invalides in Paris, where Napoleon's tomb is also located.",
@@ -161,6 +175,12 @@ int main() {
     // Deshabilitar cursor para free look continuo
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
+    // Inicializar irrKlang (NO reproducir música aún)
+    g_soundEngine = createIrrKlangDevice();
+    if (!g_soundEngine) {
+        std::cerr << "No se pudo inicializar irrKlang" << std::endl;
+    }
+
     // Inicialización de GLAD
     // GLAD initialization
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
@@ -200,7 +220,9 @@ int main() {
     AppState nextStateAfterLoading = AppState::MENU;
     float lastFrame = 0.0f;
     float deltaTime = 0.0f;
+    AppState prevState = currentState;
     while (!glfwWindowShouldClose(window)) {
+
         // Cálculo de deltaTime para animaciones y lógica dependiente del tiempo
         // DeltaTime calculation for animations and time-dependent logic
         float currentFrame = glfwGetTime();
@@ -216,11 +238,33 @@ int main() {
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
+
+        // Control de música según estado
+        if (g_soundEngine) {
+            if (currentState == AppState::PLAYING) {
+                if (!g_music) {
+                    g_music = g_soundEngine->play2D(g_playlist[g_currentTrack].c_str(), false, false, true);
+                } else if (g_music->isFinished()) {
+                    g_music->drop();
+                    g_currentTrack = (g_currentTrack + 1) % g_playlist.size();
+                    g_music = g_soundEngine->play2D(g_playlist[g_currentTrack].c_str(), false, false, true);
+                } else if (g_music->getIsPaused()) {
+                    g_music->setIsPaused(false);
+                }
+            } else if (currentState != AppState::PLAYING && g_music && !g_music->getIsPaused()) {
+                g_music->setIsPaused(true);
+            }
+        }
     }
     Cleanup3DScene();
     CleanupImGui();
     glfwDestroyWindow(window);
     glfwTerminate();
+    // Liberar engine de sonido
+    if (g_music) g_music->drop();
+    if (g_soundEngine) {
+        g_soundEngine->drop();
+    }
     return 0;
 }
 
@@ -233,8 +277,8 @@ void Init3DScene(int screenWidth, int screenHeight)
     glUniform4f(glGetUniformLocation(g_shaderProgram->ID, "lightColor"), g_lightColor.x, g_lightColor.y, g_lightColor.z, g_lightColor.w);
     glUniform3f(glGetUniformLocation(g_shaderProgram->ID, "lightPos"), g_lightPos.x, g_lightPos.y, g_lightPos.z);
 
-    g_camera = new Camera(screenWidth, screenHeight, glm::vec3(0.0f, 3.45f, 0.0f));
-
+    g_camera = new Camera(screenWidth, screenHeight, glm::vec3(5.96f, 3.00f, 19.79f));
+    
     try {
         g_model = new Model("models/gallery_01/scene.gltf");
         g_statua_1 = new Model("models/venus_de_milo/scene.gltf");
@@ -310,7 +354,9 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
         MostrarInfoObraCercana(g_camera->Position, window);
 
         g_camera->Inputs(window, deltaTime);
+        //g_camera->Position.y = 3.0f;
         g_camera->updateMatrix(65.0f, 0.1f, 100.0f);
+
 
         if (g_model && g_shaderProgram)
         {
@@ -349,7 +395,7 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
 
         // --- Renderizado de AABB para debug visual ---
         // Obtener matrices de cámara
-        glm::mat4 view = glm::lookAt(g_camera->Position, g_camera->Position + g_camera->Orientation, g_camera->Up);
+       glm::mat4 view = glm::lookAt(g_camera->Position, g_camera->Position + g_camera->Orientation, g_camera->Up);
         glm::mat4 proj = glm::perspective(glm::radians(65.0f), (float)g_camera->width / g_camera->height, 0.1f, 100.0f);
         static Shader debugShader("debug_line.vert", "debug_line.frag");
         // Gallery (rojo)
@@ -361,12 +407,12 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
 
         // Ventana de información de depuración
         // Debug info window
-       /* ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
+       /*ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
         ImGui::Begin("Debug Info");
         ImGui::Text("Estado: PLAYING");
         ImGui::Text("Pos: (%.2f, %.2f, %.2f)", g_camera->Position.x, g_camera->Position.y, g_camera->Position.z);
         ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-        ImGui::End();*/
+        ImGui::End()*/
         break;
     }
 }

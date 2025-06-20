@@ -1,8 +1,8 @@
 /*
-    VBO.h
     --------------------------------------------------------------------------------
     Archivo de cabecera para la declaración de la clase VBO y la estructura Vertex, utilizadas para la gestión de Vertex Buffer Objects y vértices en OpenGL.
     Header file for the declaration of the VBO class and Vertex struct, used for managing Vertex Buffer Objects and vertices in OpenGL.
+	--------------------------------------------------------------------------------
 */
 
 #ifndef VBO_CLASS_H

@@ -2,7 +2,6 @@
     Menu.cpp
     --------------------------------------------------------------------------------
     Archivo de implementación para la gestión de los menús y estados de la aplicación. Incluye funciones para renderizar el menú principal, instrucciones y pantalla de carga, así como la interacción con el usuario.
-    --------------------------------------------------------------------------------
     Implementation file for managing application menus and states. Includes functions to render the main menu, instructions, and loading screen, as well as user interaction handling.
 */
 
@@ -119,6 +118,7 @@ void RenderInstructions(AppState& currentState, GLFWwindow* window, AppState& ne
     ImGui::Separator();
     ImGui::Dummy(ImVec2(0.0f, 10.0f));
     // Explicación general del proyecto
+    // General project explanation
     ImGui::TextWrapped(
         "V-Museum is an interactive 3D experience that allows you to explore a virtual gallery featuring some of the most iconic sculptures in history. "
         "Move freely through the museum, approach each artwork, and press the 'L' key to view detailed information about each piece, including its name, author, year, and a historical description. "
@@ -140,7 +140,7 @@ void RenderInstructions(AppState& currentState, GLFWwindow* window, AppState& ne
 
     // Botón para volver al menú principal
     // Button to return to main menu
-    ImGui::Dummy(ImVec2(0.0f, displaySize.y * 0.08f)); // Espacio extra antes del botón
+    ImGui::Dummy(ImVec2(0.0f, displaySize.y * 0.08f)); // Espacio extra antes del botón / Extra space before button
     float buttonWidth = 180.0f;
     float buttonHeight = 32.0f;
     float centerX = (ImGui::GetWindowSize().x - buttonWidth) * 0.5f;

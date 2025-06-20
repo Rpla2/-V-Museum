@@ -1,8 +1,8 @@
 /*
-    ImGuiManager.h
     --------------------------------------------------------------------------------
     Archivo de cabecera para la gestión del contexto de ImGui, inicialización y limpieza.
     Header file for ImGui context management, initialization, and cleanup.
+    --------------------------------------------------------------------------------
 */
 
 #pragma once

@@ -1,5 +1,4 @@
 /*
-    ImGuiManager.cpp
     --------------------------------------------------------------------------------
     Implementation of ImGui context management for initialization and cleanup.
     Provides functions for ImGui context and backend setup, custom style, and font loading.

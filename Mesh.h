@@ -1,8 +1,8 @@
 /*
-    Mesh.h
     --------------------------------------------------------------------------------
     Archivo de cabecera para la declaración de la clase Mesh, que representa una malla 3D y su gestión en OpenGL.
     Header file for the declaration of the Mesh class, representing a 3D mesh and its management in OpenGL.
+	--------------------------------------------------------------------------------
 */
 
 #ifndef MESH_CLASS_H
@@ -22,12 +22,15 @@ public:
 	std::vector <GLuint> indices;
 	std::vector <Texture> textures;
 	// Store VAO in public so it can be used in the Draw function
+	// Almacene VAO en público para que pueda usarse en la función Dibujar
 	VAO VAO;
 
 	// Initializes the mesh
+	// Inicializa la malla
 	Mesh(std::vector <Vertex>& vertices, std::vector <GLuint>& indices, std::vector <Texture>& textures);
 
 	// Draws the mesh
+	// Dibuja la malla
 	void Draw
 	(
 		Shader& shader,

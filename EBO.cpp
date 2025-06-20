@@ -1,12 +1,12 @@
 /*
-    EBO.cpp
     --------------------------------------------------------------------------------
     Archivo de implementación de la clase EBO. Encargado de la gestión de Element Buffer Objects en OpenGL, permitiendo el renderizado indexado eficiente.
     Incluye métodos para crear, enlazar, desenlazar y eliminar EBOs.
 
-    --------------------------------------------------------------------------------
+   
     Implementation file for the EBO class. Handles the management of Element Buffer Objects in OpenGL, enabling efficient indexed rendering.
     Includes methods to create, bind, unbind, and delete EBOs.
+    --------------------------------------------------------------------------------
 */
 
 #include "EBO.h"

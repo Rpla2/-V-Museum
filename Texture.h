@@ -1,8 +1,8 @@
 /*
-    Texture.h
     --------------------------------------------------------------------------------
     Archivo de cabecera para la declaración de la clase Texture, utilizada para la gestión de texturas en OpenGL.
     Header file for the declaration of the Texture class, used for texture management in OpenGL.
+	--------------------------------------------------------------------------------
 */
 
 #ifndef TEXTURE_CLASS_H
