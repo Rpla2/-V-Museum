@@ -29,7 +29,7 @@ std::string get_file_contents(const char* filename)
 }
 
 //Procedemos a contruir el constructor de sombras
-
+// We proceed to build the shader constructor
 Shader::Shader(const char* vertexFile, const char* fragmentFile)
 {
 	std::string vertexCode = get_file_contents(vertexFile);
@@ -39,9 +39,11 @@ Shader::Shader(const char* vertexFile, const char* fragmentFile)
 	const char* fragmentSource = fragmentCode.c_str();
 
 	//Create Vertex Shader Object and get its reference
+	// Creamos el objeto de sombreado de vértices y obtenemos su referencia
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
 
 	//Attach Vertex Shader source to the Vertex Shader Object
+	//Adjuntamos el código fuente del sombreado de vértices al objeto de sombreado de vértices
 	glShaderSource(vertexShader, 1, &vertexSource, NULL);
 
 	//Compile the Vertex Shader into machine code

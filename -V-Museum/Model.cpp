@@ -12,6 +12,8 @@
 #include"Model.h"
 #include <cfloat> // Para FLT_MAX
 
+// Constructor: loads and parses the model file, initializes mesh data and traverses the node hierarchy.
+// Constructor: carga y analiza el archivo del modelo, inicializa los datos de malla y recorre la jerarquía de nodos.
 Model::Model(const char* file)
 {
 	std::string text = get_file_contents(file);
@@ -23,6 +25,8 @@ Model::Model(const char* file)
 	traverseNode(0, glm::mat4(1.0f));
 }
 
+// Draws the model by rendering all its meshes with the provided shader, camera, and model transformation.
+// Dibuja el modelo renderizando todas sus mallas con el shader, la cámara y la transformación de modelo proporcionados.
 void Model::Draw(Shader& shader, Camera& camera, const glm::mat4& modelMatrix)
 {
 	for (unsigned int i = 0; i < meshes.size(); i++)
@@ -31,6 +35,8 @@ void Model::Draw(Shader& shader, Camera& camera, const glm::mat4& modelMatrix)
 	}
 }
 
+// Loads mesh data for the mesh at the given index: positions, normals, texture coordinates, indices, and textures.
+// Carga los datos de la malla en el índice especificado: posiciones, normales, coordenadas de textura, índices y texturas.
 void Model::loadMesh(unsigned int indMesh)
 {
 	unsigned int posAccInd = JSON["meshes"][indMesh]["primitives"][0]["attributes"]["POSITION"];
@@ -52,6 +58,8 @@ void Model::loadMesh(unsigned int indMesh)
 	meshes.push_back(Mesh(vertices, indices, textures));
 }
 
+// Recursively traverses the node hierarchy starting at the given node index, applying parent transforms and loading meshes.
+// Recorre recursivamente la jerarquía de nodos comenzando en el índice proporcionado, aplicando transformaciones de padres y cargando mallas.
 void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 {
 	json node = JSON["nodes"][nextNode];
@@ -120,6 +128,8 @@ void Model::traverseNode(unsigned int nextNode, glm::mat4 matrix)
 	}
 }
 
+// Reads binary buffer data from the model file and returns it as a byte vector.
+// Lee los datos binarios de los búferes del archivo del modelo y los devuelve como un vector de bytes.
 std::vector<unsigned char> Model::getData()
 {
 	std::string bytesText;
@@ -133,6 +143,8 @@ std::vector<unsigned char> Model::getData()
 	return data;
 }
 
+// Extracts float data from the specified accessor, converting raw bytes to float values.
+// Extrae datos de punto flotante del accesor especificado, convirtiendo bytes crudos a valores float.
 std::vector<float> Model::getFloats(json accessor)
 {
 	std::vector<float> floatVec;
@@ -165,6 +177,8 @@ std::vector<float> Model::getFloats(json accessor)
 	return floatVec;
 }
 
+// Extracts index data (unsigned int, unsigned short, or short) from the specified accessor.
+// Extrae datos de índices (unsigned int, unsigned short o short) del accesor especificado.
 std::vector<GLuint> Model::getIndices(json accessor)
 {
 	std::vector<GLuint> indices;
@@ -212,6 +226,8 @@ std::vector<GLuint> Model::getIndices(json accessor)
 	return indices;
 }
 
+// Loads textures referenced by the model's images, avoiding duplicates, and returns them.
+// Carga las texturas referenciadas por las imágenes del modelo, evitando duplicados, y las devuelve.
 std::vector<Texture> Model::getTextures()
 {
 	std::vector<Texture> textures;
@@ -256,6 +272,8 @@ std::vector<Texture> Model::getTextures()
 	return textures;
 }
 
+// Assembles Vertex structures from positions, normals, default color, and texture coordinates.
+// Ensambla estructuras Vertex a partir de posiciones, normales, color predeterminado y coordenadas de textura.
 std::vector<Vertex> Model::assembleVertices
 (
 	std::vector<glm::vec3> positions,
@@ -280,6 +298,8 @@ std::vector<Vertex> Model::assembleVertices
 	return vertices;
 }
 
+// Groups a flat float vector into a vector of glm::vec2.
+// Agrupa un vector de floats en un vector de glm::vec2.
 std::vector<glm::vec2> Model::groupFloatsVec2(std::vector<float> floatVec)
 {
 	std::vector<glm::vec2> vectors;
@@ -289,6 +309,9 @@ std::vector<glm::vec2> Model::groupFloatsVec2(std::vector<float> floatVec)
 	}
 	return vectors;
 }
+
+// Groups a flat float vector into a vector of glm::vec3.
+// Agrupa un vector de floats en un vector de glm::vec3.
 std::vector<glm::vec3> Model::groupFloatsVec3(std::vector<float> floatVec)
 {
 	std::vector<glm::vec3> vectors;
@@ -298,6 +321,9 @@ std::vector<glm::vec3> Model::groupFloatsVec3(std::vector<float> floatVec)
 	}
 	return vectors;
 }
+
+// Groups a flat float vector into a vector of glm::vec4.
+// Agrupa un vector de floats en un vector de glm::vec4.
 std::vector<glm::vec4> Model::groupFloatsVec4(std::vector<float> floatVec)
 {
 	std::vector<glm::vec4> vectors;
@@ -308,9 +334,8 @@ std::vector<glm::vec4> Model::groupFloatsVec4(std::vector<float> floatVec)
 	return vectors;
 }
 
-// ----------------------
-// NUEVA FUNCI�N SOLICITADA
-// ----------------------
+// Computes and prints the minimum and maximum vertex coordinates across all meshes.
+// Calcula e imprime las coordenadas mínimas y máximas de vértices en todas las mallas.
 void Model::PrintMinMaxVertexCoords()
 {
 	glm::vec3 min(FLT_MAX, FLT_MAX, FLT_MAX);

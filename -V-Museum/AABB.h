@@ -1,15 +1,18 @@
 // --------------------------------------------------------------------------------
 // Header file for the AABB struct and its transformation method.
+// Archivo de encabezado para la estructura AABB y su método de transformación.
 // --------------------------------------------------------------------------------
 #pragma once
 #include <glm/glm.hpp>
 
-// Structure for Axis-Aligned Bounding Box (AABB)
+// Structure for Axis-Aligned Bounding Box (AABB) 
+// Estructura para el Bounding Box (AABB)
 struct AABB {
-    glm::vec3 min; // Minimum
-    glm::vec3 max; // Maximum
+    glm::vec3 min; // Minimum corner // Esquina mínima
+    glm::vec3 max; // Maximum corner // Esquina máxima
 
-    // Transforms the AABB with a model matrix
+    // Transforms the AABB with a model matrix 
+    // Transforma el AABB con una matriz de modelo
     AABB transform(const glm::mat4& model) const {
         glm::vec3 corners[8] = {
             min,

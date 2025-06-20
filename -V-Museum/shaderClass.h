@@ -19,6 +19,8 @@ std::string get_file_contents(const char* filename);
 
 class Shader {
 
+// Loads and compiles the shader from the given vertex and fragment files.
+// Carga y compila el shader a partir de los archivos de vértices y fragmentos dados.
 public:
 	GLuint ID;
 	Shader(const char* vertexFile, const char* fragmentFile);

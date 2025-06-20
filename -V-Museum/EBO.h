@@ -11,6 +11,8 @@
 #include <glad/glad.h>
 #include <vector>
 
+// Clase EBO (Element Buffer Object)
+// EBO Class (Element Buffer Object)
 class EBO
 {
 public:

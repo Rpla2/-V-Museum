@@ -16,10 +16,16 @@
 ImFont* G_Font_H1 = nullptr;
 ImFont* G_Font_Default = nullptr;
 
+// Function to apply custom ImGui style
+// Función para aplicar estilo personalizado de ImGui
 void ApplyCustomStyle() {
+    // Get the current ImGui style
+    // Obtener el estilo actual de ImGui
     ImGuiStyle& style = ImGui::GetStyle();
     ImVec4* colors = style.Colors;
 
+    // Define custom colors for the ImGui style
+    // Define colores personalizados para el estilo de ImGui
     colors[ImGuiCol_Text] = ImVec4(0.92f, 0.92f, 0.92f, 1.00f);
     colors[ImGuiCol_TextDisabled] = ImVec4(0.44f, 0.44f, 0.44f, 1.00f);
     colors[ImGuiCol_WindowBg] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
@@ -69,6 +75,8 @@ void ApplyCustomStyle() {
     colors[ImGuiCol_NavWindowingDimBg] = ImVec4(0.80f, 0.80f, 0.80f, 0.20f);
     colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.20f, 0.20f, 0.20f, 0.35f);
 
+    // Set style variables
+    // Establecer variables de estilo
     style.WindowPadding = ImVec2(8.00f, 8.00f);
     style.FramePadding = ImVec2(5.00f, 2.00f);
     style.CellPadding = ImVec2(6.00f, 6.00f);
@@ -93,6 +101,8 @@ void ApplyCustomStyle() {
     style.TabRounding = 4;
 }
 
+// Function to initialize ImGui context and backend
+// Función para inicializar el contexto y backend de ImGui
 void InitImGui(GLFWwindow* window) {
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -113,6 +123,8 @@ void InitImGui(GLFWwindow* window) {
     ImGui_ImplOpenGL3_Init("#version 330");
 }
 
+// Function to clean up ImGui context and backend
+// Función para limpiar el contexto y backend de ImGui
 void CleanupImGui() {
     ImGui_ImplOpenGL3_Shutdown();
     ImGui_ImplGlfw_Shutdown();

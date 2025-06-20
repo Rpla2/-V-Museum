@@ -30,44 +30,43 @@
 
 using namespace irrklang;
 
-extern void DrawAABB(const AABB& box, const glm::mat4& view, const glm::mat4& proj, const glm::vec3& color, Shader& shader);
-
-// Objetos globales de la escena 3D
-// Global objects for the 3D scene
+// Objetos globales de la escena 3D / Global objects for the 3D scene
 Camera* g_camera = nullptr;
 Shader* g_shaderProgram = nullptr;
-// Engine de sonido global
-ISoundEngine* g_soundEngine = nullptr;
-ISound* g_music = nullptr; // Referencia a la música ambiental
+
+ISoundEngine* g_soundEngine = nullptr;// Engine de sonido global / Global sound engine
+ISound* g_music = nullptr;// Referencia a la música ambiental / Reference to ambient music
+
+// Lista de reproducción de música / Music playlist
 std::vector<std::string> g_playlist = {
     "Music/Fly_Me_to_the_Moon.mp3",
     "Music/Jazz_Relajante.mp3",
     "Music/Morning_Café_Jazz.mp3",
-    
 };
+
+// Índice de la pista actual en la lista de reproducción / Current track index in the playlist
 int g_currentTrack = 0;
 
-// Modelos 3D
+// 3D Models
 Model* g_model = nullptr;
-Model* g_statua_1 = nullptr;
-Model* g_statua_2 = nullptr;
-Model* g_statua_3 = nullptr;
-Model* g_statua_4 = nullptr;
-Model* g_statua_5 = nullptr;
-Model* g_statua_6 = nullptr;
-Model* g_statua_7 = nullptr;
+Model* g_statue_1 = nullptr;
+Model* g_statue_2 = nullptr;
+Model* g_statue_3 = nullptr;
+Model* g_statue_4 = nullptr;
+Model* g_statue_5 = nullptr;
+Model* g_statue_6 = nullptr;
+Model* g_statue_7 = nullptr;
 
-struct ObraInfo {
+struct WorkInfo {
     std::string Name;
     std::string Author;
     std::string Year;
     std::string Description;
-    glm::vec3 posicion;
-    float radioInteraccion;
+    glm::vec3 position;
+    float interactionRadius;
 };
 
-
-std::vector<ObraInfo> obras = {
+std::vector<WorkInfo> works = {
     {
         "Venus de Milo (Greek: Aphrodite of Milos).",
         "Alexandros of Antioch.\nThe authorship is attributed to him, although there is no absolute certainty. This attribution is based on an inscription found on the plinth (the base) of the statue, which was unfortunately lost shortly after its discovery. For a long time, it was mistakenly attributed to Praxiteles to increase its value, associating it with the Classical period.",
@@ -119,18 +118,18 @@ std::vector<ObraInfo> obras = {
     }
 };
 
-
 glm::vec4 g_lightColor = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
 glm::vec3 g_lightPos = glm::vec3(0.5f, 2.0f, 2.0f);
 
 void SetClearColor(AppState state);
 void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading, float deltaTime);
-void MostrarInfoObraCercana(const glm::vec3& camPos, GLFWwindow* window);
-static glm::mat4 ComputeTransform(const glm::vec3& translate, const glm::vec3& rotDeg, float scale);
+void ShowNearestWorkInfo(const glm::vec3& camPos, GLFWwindow* window);
 void Init3DScene(int screenWidth, int screenHeight);
 void Cleanup3DScene();
+static glm::mat4 ComputeTransform(const glm::vec3& translate, const glm::vec3& rotDeg, float scale);
 
 // Función para comprobar colisión entre un punto y un AABB
+// Checks collision between a point and an AABB
 bool PointInAABB(const glm::vec3& point, const AABB& box) {
     return (point.x >= box.min.x && point.x <= box.max.x &&
             point.y >= box.min.y && point.y <= box.max.y &&
@@ -138,22 +137,22 @@ bool PointInAABB(const glm::vec3& point, const AABB& box) {
 }
 
 // Función para comprobar colisión de la cámara con todos los AABB
+// Checks camera collision against all AABBs
 bool CameraCollides(const glm::vec3& camPos) {
-    // Galería
-    if (!PointInAABB(camPos, gallery01AABB)) return true; // Si está fuera de la galería, colisiona
-    // Bancas
+    // Galería / Gallery
+    if (!PointInAABB(camPos, gallery01AABB)) return true; // Si está fuera de la galería, colisiona / If outside the gallery, it collides
+    // Bancas / Benches
     for (const auto& bench : benchAABBs) {
         if (PointInAABB(camPos, bench)) return true;
     }
-    // Estatuas
+    // Estatuas / Statues
     for (const auto& statue : statueAABBs) {
         if (PointInAABB(camPos, statue)) return true;
     }
     return false;
 }
 
-// Función principal de la aplicación
-// Main application function
+// Función principal de la aplicación / Main application function
 int main() {
     if (!glfwInit()) {
         std::cerr << "Failed to initialize GLFW\n";
@@ -172,7 +171,9 @@ int main() {
         return -1;
     }
     glfwMakeContextCurrent(window);
+    
     // Deshabilitar cursor para free look continuo
+    // Disable cursor for continuous free look
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     // Inicializar irrKlang (NO reproducir música aún)
@@ -181,8 +182,7 @@ int main() {
         std::cerr << "No se pudo inicializar irrKlang" << std::endl;
     }
 
-    // Inicialización de GLAD
-    // GLAD initialization
+    // Inicialización de GLAD / GLAD initialization
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         std::cerr << "Failed to initialize GLAD" << std::endl;
         return -1;
@@ -196,31 +196,27 @@ int main() {
         stbi_image_free(icon.pixels);
     }
     else {
-        std::cerr << "Failed to load window icon\n";
-    }
-
-    glfwMakeContextCurrent(window);
-    // Deshabilitar cursor para free look continuo
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
-    // Inicialización de GLAD
-    // GLAD initialization
-    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::cerr << "Failed to initialize GLAD" << std::endl;
-        return -1;
+        std::cerr << "Failed to load window icon" << std::endl;
     }
 
     int screenWidth, screenHeight;
     glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
     glViewport(0, 0, screenWidth, screenHeight);
     glEnable(GL_DEPTH_TEST);
+
     Init3DScene(screenWidth, screenHeight);
     InitImGui(window);
+
+	// Inicializar el estado de la aplicación / Initialize application state
     AppState currentState = AppState::MENU;
     AppState nextStateAfterLoading = AppState::MENU;
+    AppState prevState = currentState;
+
+	// Variables para el control de tiempo / Variables for time control
     float lastFrame = 0.0f;
     float deltaTime = 0.0f;
-    AppState prevState = currentState;
+
+	// Bucle principal de la aplicación / Main application loop
     while (!glfwWindowShouldClose(window)) {
 
         // Cálculo de deltaTime para animaciones y lógica dependiente del tiempo
@@ -228,6 +224,7 @@ int main() {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+
         glfwPollEvents();
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -235,11 +232,12 @@ int main() {
         SetClearColor(currentState);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         RenderState(currentState, window, nextStateAfterLoading, deltaTime);
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
         glfwSwapBuffers(window);
 
-        // Control de música según estado
+        // Control de música según estado / Music control according to state
         if (g_soundEngine) {
             if (currentState == AppState::PLAYING) {
                 if (!g_music) {
@@ -260,7 +258,8 @@ int main() {
     CleanupImGui();
     glfwDestroyWindow(window);
     glfwTerminate();
-    // Liberar engine de sonido
+
+    // Liberar engine de sonido / Release sound engine
     if (g_music) g_music->drop();
     if (g_soundEngine) {
         g_soundEngine->drop();
@@ -281,13 +280,13 @@ void Init3DScene(int screenWidth, int screenHeight)
     
     try {
         g_model = new Model("models/gallery_01/scene.gltf");
-        g_statua_1 = new Model("models/venus_de_milo/scene.gltf");
-		g_statua_2 = new Model("models/the_discobolus_of_myron/scene.gltf");
-        g_statua_3 = new Model("models/napoleon/scene.gltf");
-        g_statua_4 = new Model("models/julio_cesar/scene.gltf");
-        g_statua_5 = new Model("models/william_shakespeare_statue/scene.gltf");
-        g_statua_6 = new Model("models/hans_christian_andersen/scene.gltf");
-		g_statua_7 = new Model("models/busto_de_cervantes/scene.gltf");
+        g_statue_1 = new Model("models/venus_de_milo/scene.gltf");
+		g_statue_2 = new Model("models/the_discobolus_of_myron/scene.gltf");
+        g_statue_3 = new Model("models/napoleon/scene.gltf");
+        g_statue_4 = new Model("models/julio_cesar/scene.gltf");
+        g_statue_5 = new Model("models/william_shakespeare_statue/scene.gltf");
+        g_statue_6 = new Model("models/hans_christian_andersen/scene.gltf");
+		g_statue_7 = new Model("models/busto_de_cervantes/scene.gltf");
 		std::cout << "MODELOS CARGADOS CORRECTAMENTE" << std::endl;
     }
     catch (const std::exception& e) {
@@ -295,18 +294,17 @@ void Init3DScene(int screenWidth, int screenHeight)
     }
 }
 
-// Libera los recursos de la escena 3D
-// Releases 3D scene resources
+// Libera los recursos de la escena 3D / Releases 3D scene resources
 void Cleanup3DScene()
 {
     delete g_model;
-    delete g_statua_1;
-    delete g_statua_2;
-    delete g_statua_3;
-    delete g_statua_4;
-    delete g_statua_5;
-	delete g_statua_6;
-	delete g_statua_7;
+    delete g_statue_1;
+    delete g_statue_2;
+    delete g_statue_3;
+    delete g_statue_4;
+    delete g_statue_5;
+	delete g_statue_6;
+	delete g_statue_7;
     delete g_camera;
     g_shaderProgram->Delete();
     delete g_shaderProgram;
@@ -328,7 +326,6 @@ void SetClearColor(AppState state) {
 // Renders the current application state (menu, instructions, loading, playing, exit)
 void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextStateAfterLoading, float deltaTime) {
 
-    //currentState = AppState::PLAYING;
     switch (currentState) {
     case AppState::MENU:
         glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
@@ -351,110 +348,88 @@ void RenderState(AppState& currentState, GLFWwindow* window, AppState& nextState
             currentState = AppState::LOADING;
         }
         
-        MostrarInfoObraCercana(g_camera->Position, window);
+        ShowNearestWorkInfo(g_camera->Position, window);
 
         g_camera->Inputs(window, deltaTime);
-        //g_camera->Position.y = 3.0f;
+        g_camera->Position.y = 3.0f;
         g_camera->updateMatrix(65.0f, 0.1f, 100.0f);
-
 
         if (g_model && g_shaderProgram)
         {
-            // Edificio principal
+            // Edificio principal/ Main building
             glm::mat4 modelMatrix = ComputeTransform(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 180.0f), 2.0f);
             g_model->Draw(*g_shaderProgram, *g_camera, modelMatrix);
 
-            // Estatua Venus de Milo
+            // Estatua Venus de Milo/ Statue Venus de Milo
             glm::mat4 statuaMatrix1 = ComputeTransform(glm::vec3(-3.0f, 0.0f, 7.6f), glm::vec3(0.0f, 90.0f, 180.0f), 20.0f);
-            g_statua_1->Draw(*g_shaderProgram, *g_camera, statuaMatrix1);
+            g_statue_1->Draw(*g_shaderProgram, *g_camera, statuaMatrix1);
 
-            // Estatua Discóbolo de Mirón
+            // Estatua Discóbolo de Mirón/ Statue Discobolus of Myron
             glm::mat4 statuaMatrix2 = ComputeTransform(glm::vec3(3.5f, 0.0f, 6.6f), glm::vec3(180.0f, 0.0f, 90.0f), 2.5f);
-            g_statua_2->Draw(*g_shaderProgram, *g_camera, statuaMatrix2);
+            g_statue_2->Draw(*g_shaderProgram, *g_camera, statuaMatrix2);
 
-            // Estatua Napoleón
+            // Estatua Napoleón/ Statue Napoleon
             glm::mat4 statuaMatrix3 = ComputeTransform(glm::vec3(0.0f, 0.0f, -8.4f), glm::vec3(360.0f, 0.0f, -90.0f), 0.06f);
-            g_statua_3->Draw(*g_shaderProgram, *g_camera, statuaMatrix3);
+            g_statue_3->Draw(*g_shaderProgram, *g_camera, statuaMatrix3);
 
-            // Estatua Julio César
+            // Estatua Julio César/ Statue Julius Caesar
             glm::mat4 statuaMatrix4 = ComputeTransform(glm::vec3(0.0f, -2.5f, -12.8f), glm::vec3(0.0f, -90.0f, 180.0f), 2.5f);
-            g_statua_4->Draw(*g_shaderProgram, *g_camera, statuaMatrix4);
+            g_statue_4->Draw(*g_shaderProgram, *g_camera, statuaMatrix4);
 
-            // Estatua William Shakespeare
+            // Estatua William Shakespeare/ Statue William Shakespeare
             glm::mat4 statuaMatrix5 = ComputeTransform(glm::vec3(0.0f, 0.0f, 18.4f), glm::vec3(0.0f, -90.0f, 180.0f), 3.05f);
-            g_statua_5->Draw(*g_shaderProgram, *g_camera, statuaMatrix5);
+            g_statue_5->Draw(*g_shaderProgram, *g_camera, statuaMatrix5);
 
-            // Estatua Hans Christian Andersen
+            // Estatua Hans Christian Andersen/ Statue Hans Christian Andersen
             glm::mat4 statuaMatrix6 = ComputeTransform(glm::vec3(6.836f, -3.422f, 17.550f), glm::vec3(-2.0f, 78.0f, -179.3f), 0.15f);
-            g_statua_6->Draw(*g_shaderProgram, *g_camera, statuaMatrix6);
+            g_statue_6->Draw(*g_shaderProgram, *g_camera, statuaMatrix6);
 
-            // Estatua Miguel de Cervantes
+            // Estatua Miguel de Cervantes/ Statue Miguel de Cervantes
             glm::mat4 statueMatrix7 = ComputeTransform(glm::vec3(-9.2f, -1.685f, 13.341f), glm::vec3(-161.053f, 0.0f, 83.448f), 1.0f);
-            g_statua_7->Draw(*g_shaderProgram, *g_camera, statueMatrix7);
+            g_statue_7->Draw(*g_shaderProgram, *g_camera, statueMatrix7);
         }
-
-        // --- Renderizado de AABB para debug visual ---
-        // Obtener matrices de cámara
-       glm::mat4 view = glm::lookAt(g_camera->Position, g_camera->Position + g_camera->Orientation, g_camera->Up);
-        glm::mat4 proj = glm::perspective(glm::radians(65.0f), (float)g_camera->width / g_camera->height, 0.1f, 100.0f);
-        static Shader debugShader("debug_line.vert", "debug_line.frag");
-        // Gallery (rojo)
-        DrawAABB(gallery01AABB, view, proj, glm::vec3(1,0,0), debugShader);
-        // Bancas (verde)
-        for(const auto& b : benchAABBs) DrawAABB(b, view, proj, glm::vec3(0,1,0), debugShader);
-        // Estatuas (morado)
-        for(const auto& s : statueAABBs) DrawAABB(s, view, proj, glm::vec3(0.5,0,0.5), debugShader);
-
-        // Ventana de información de depuración
-        // Debug info window
-       /*ImGui::SetNextWindowSize(ImVec2(400, 300), ImGuiCond_Once);
-        ImGui::Begin("Debug Info");
-        ImGui::Text("Estado: PLAYING");
-        ImGui::Text("Pos: (%.2f, %.2f, %.2f)", g_camera->Position.x, g_camera->Position.y, g_camera->Position.z);
-        ImGui::Text("FPS: %.1f", ImGui::GetIO().Framerate);
-        ImGui::End()*/
         break;
     }
 }
 
 // Muestra la información de la obra de arte más cercana si el usuario está dentro del rango y presiona la tecla L
 // Shows the info window for the nearest artwork if the user is within range and presses the L key
-void MostrarInfoObraCercana(const glm::vec3& camPos, GLFWwindow* window) {
-    for (const auto& obra : obras) {
-        float distancia = glm::distance(camPos, obra.posicion);
+void ShowNearestWorkInfo(const glm::vec3& camPos, GLFWwindow* window) {
+    for (const auto& work : works) {
+        float distanceToWork = glm::distance(camPos, work.position);
 
-        ImVec2 ventanaSize = ImVec2(420, 480);
-        ImVec2 ventanaPos = ImVec2(20, 40);
+        ImVec2 windowSize = ImVec2(420, 480);
+        ImVec2 windowPos = ImVec2(20, 40);
 
-        ImGui::SetNextWindowSize(ventanaSize, ImGuiCond_Always);
-        ImGui::SetNextWindowPos(ventanaPos, ImGuiCond_Always);
+        ImGui::SetNextWindowSize(windowSize, ImGuiCond_Always);
+        ImGui::SetNextWindowPos(windowPos, ImGuiCond_Always);
 
-        if (distancia < obra.radioInteraccion && glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+        if (distanceToWork < work.interactionRadius && glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
             ImGui::Begin("Work Information", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 
             ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 255, 255, 255));
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
             ImGui::Text("Name:");
             ImGui::PopFont();
-            ImGui::TextWrapped("%s", obra.Name.c_str());
+            ImGui::TextWrapped("%s", work.Name.c_str());
             ImGui::Spacing();
             ImGui::Separator();
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
             ImGui::Text("Author:");
             ImGui::PopFont();
-            ImGui::TextWrapped("%s", obra.Author.c_str());
+            ImGui::TextWrapped("%s", work.Author.c_str());
             ImGui::Spacing();
             ImGui::Separator();
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
             ImGui::Text("Year:");
             ImGui::PopFont();
-            ImGui::TextWrapped("%s", obra.Year.c_str());
+            ImGui::TextWrapped("%s", work.Year.c_str());
             ImGui::Spacing();
             ImGui::Separator();
             ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[0]);
             ImGui::Text("Description:");
             ImGui::PopFont();
-            ImGui::TextWrapped("%s", obra.Description.c_str());
+            ImGui::TextWrapped("%s", work.Description.c_str());
             ImGui::PopStyleColor();
             ImGui::End();
             break;
