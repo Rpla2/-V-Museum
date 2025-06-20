@@ -29,6 +29,7 @@ V-Museum is an interactive 3D virtual museum simulation that allows users to exp
 - Windows 10 or later
 - Visual Studio 2019/2022 with C++ workload
 - Git
+- The project uses relative paths for dependencies (folder `deps`); no manual configuration of include/library paths is required
 
 ### Build & Run
 
@@ -40,13 +41,16 @@ V-Museum is an interactive 3D virtual museum simulation that allows users to exp
 2. Open `-V-Museum.sln` in Visual Studio.
 3. Set the solution configuration to **Debug** or **Release**.
 4. Build the solution (Ctrl+Shift+B).
-5. Run the executable from `x64\Debug\V-Museum.exe` or `x64\Release\V-Museum.exe`.
+5. Run the executable from `x64\Debug\-V-Museum.exe` or `x64\Release\-V-Museum.exe`.
 
 ## Installing the Standalone Executable
 
 > **Note:** Standalone installer coming soon.
 
 ## Screenshots
+- ![Main Menu](assets/screenshot_main_menu.png)
+- ![Gallery View](assets/screenshot_gallery_view.png)
+- ![Details](assets/screenshot_model_details.png)
 
 ## YouTube Demo Video
 
