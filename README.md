@@ -1,5 +1,8 @@
 # V-Museum
-
+<!-- Project badges -->
+[![License: MIT](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
+[![Language: C++17](https://img.shields.io/badge/language-C%2B%2B17-blue.svg)]
+[![OpenGL 3.3](https://img.shields.io/badge/OpenGL-3.3-green.svg)]
 ## Abstract
 
 V-Museum is an interactive 3D virtual museum simulation that allows users to explore renowned historical sculptures and monuments. Built with C++ and OpenGL, the application features real-time rendering, intuitive camera controls, relaxing ambient music, and an ImGui-powered interface for seamless interaction.
